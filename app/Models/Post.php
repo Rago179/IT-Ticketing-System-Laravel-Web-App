@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable = ['user_id','title','description','status'];
+    use HasFactory;  // <-- Add this
+
+    protected $fillable = ['user_id', 'title', 'description', 'status'];
 
     public function user()
     {
