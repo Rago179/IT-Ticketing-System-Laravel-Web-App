@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Profile;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -42,5 +43,16 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+    
+    /*
+    * This makes sure every new user gets an attached profile automatically
+    */
+
+    public function configure()
+    {
+        return $this->afterCreating(function ($user) {
+            $user->profile()->create(Profile::factory()->make()->toArray());
+        });
     }
 }
