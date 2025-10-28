@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
+use App\Models\Profile;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,22 +15,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin and IT users
-        User::factory()->create([
+// 1. Create admin user with a profile
+        User::factory()->has(Profile::factory())->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'role' => 'admin',
         ]);
 
-        User::factory()->create([
+        // 2. Create IT user with a profile
+        User::factory()->has(Profile::factory())->create([
             'name' => 'IT Support',
             'email' => 'it@example.com',
             'role' => 'it',
         ]);
 
-        // Create 5 normal users
-        $users = User::factory(5)->create();
-
+        // 3. Create 5 normal users, each with a profile
+        $users = User::factory(5)->has(Profile::factory())->create();
+        
         // Create 10 posts and link each to a random user
         $posts = Post::factory(10)->create([
             'user_id' => $users->random()->id,

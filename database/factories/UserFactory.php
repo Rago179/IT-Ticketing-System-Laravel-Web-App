@@ -45,14 +45,4 @@ class UserFactory extends Factory
         ]);
     }
     
-    /*
-    * This makes sure every new user gets an attached profile automatically
-    */
-
-    public function configure()
-    {
-        return $this->afterCreating(function ($user) {
-            $user->profile()->create(Profile::factory()->make()->toArray());
-        });
-    }
 }

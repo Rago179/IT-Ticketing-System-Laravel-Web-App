@@ -10,7 +10,7 @@ use App\Models\User;
  */
 class ProfileFactory extends Factory
 {
-    protected $model = Profile::class; // ✅ this line is key
+    protected $model = Profile::class; 
 
     public function definition(): array
     {
