@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Models\Profile;
+use App\Models\Category;
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,21 +32,27 @@ class DatabaseSeeder extends Seeder
 
         // 3. Create 5 normal users, each with a profile
         $users = User::factory(5)->has(Profile::factory())->create();
-        
+
+        $categories = Category::factory(5)->sequence(
+            ['name' => 'Software Bug'],
+            ['name' => 'Hardware Request'],
+            ['name' => 'Account Issue'],
+            ['name' => 'Network Down'],
+            ['name' => 'New Feature']
+        )->create();
+
         // Create 10 posts and link each to a random user
-        $posts = Post::factory(10)->create([
-            'user_id' => $users->random()->id,
-        ]);
+        $posts->each(function (Post $post) use ($categories, $allUsers) {
+                    // Attach 1 to 3 random categories to each post
+                    $post->categories()->attach(
+                        $categories->random(rand(1, 3))->pluck('id')->toArray()
+                    );
 
-        // Add comments for each post
-        $posts->each(function ($post) use ($users) {
-            Comment::factory(rand(1, 5))->create([
-                'post_id' => $post->id,
-                'user_id' => $users->random()->id,
-            ]);
-        });
-
-        
-
+                    // Add comments for each post
+                    Comment::factory(rand(1, 3))->create([
+                        'post_id' => $post->id,
+                        'user_id' => $allUsers->random()->id,
+                    ]);
+                });
     }
 }

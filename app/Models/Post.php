@@ -20,4 +20,12 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+ 
+    /**
+     * A post (ticket) can belong to many categories.
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 }
