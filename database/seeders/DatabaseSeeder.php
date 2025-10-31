@@ -16,23 +16,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-// 1. Create admin user with a profile
+        // 1. Create essential Admin and IT users
         User::factory()->has(Profile::factory())->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'John Admin',
+            'email' => 'john.admin@app.com', // Using unique emails
             'role' => 'admin',
         ]);
 
-        // 2. Create IT user with a profile
         User::factory()->has(Profile::factory())->create([
-            'name' => 'IT Support',
-            'email' => 'it@example.com',
+            'name' => 'Jane IT',
+            'email' => 'jane.it@app.com', // Using unique emails
             'role' => 'it',
         ]);
+        
+        // 2. Create 5 normal users, each with a profile
+        User::factory(5)->has(Profile::factory())->create();
+        
+        // 3. Define ALL users to be used for post and comment assignments
+        $allUsers = User::all(); // <-- FIXED: Define this variable here
 
-        // 3. Create 5 normal users, each with a profile
-        $users = User::factory(5)->has(Profile::factory())->create();
-
+        // 4. Seed Categories
         $categories = Category::factory(5)->sequence(
             ['name' => 'Software Bug'],
             ['name' => 'Hardware Request'],
@@ -40,19 +43,24 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Network Down'],
             ['name' => 'New Feature']
         )->create();
-
-        // Create 10 posts and link each to a random user
+        
+        // 5. Create 10 posts (tickets)
+        $posts = Post::factory(10)->create([ // <-- FIXED: Define $posts here
+            'user_id' => $allUsers->random()->id,
+        ]);
+        
+        // 6. Loop through created posts to attach categories and comments
         $posts->each(function (Post $post) use ($categories, $allUsers) {
-                    // Attach 1 to 3 random categories to each post
-                    $post->categories()->attach(
-                        $categories->random(rand(1, 3))->pluck('id')->toArray()
-                    );
+            // Attach 1 to 3 random categories to each post
+            $post->categories()->attach(
+                $categories->random(rand(1, 3))->pluck('id')->toArray()
+            );
 
-                    // Add comments for each post
-                    Comment::factory(rand(1, 3))->create([
-                        'post_id' => $post->id,
-                        'user_id' => $allUsers->random()->id,
-                    ]);
-                });
+            // Add comments for each post
+            Comment::factory(rand(1, 3))->create([
+                'post_id' => $post->id,
+                'user_id' => $allUsers->random()->id,
+            ]);
+        });
     }
 }
