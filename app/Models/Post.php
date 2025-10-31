@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory;  // <-- Add this
+    use HasFactory;  
 
     protected $fillable = ['user_id', 'title', 'description', 'status'];
+    /**
+     * Many posts can belong to ONE user.
+     */
 
     public function user()
     {
@@ -22,7 +25,7 @@ class Post extends Model
     }
  
     /**
-     * A post (ticket) can belong to many categories.
+     *  Many post can belong to many categories.
      */
     public function categories()
     {

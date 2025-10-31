@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+   
     use HasFactory, Notifiable;
 
     /**
@@ -47,16 +46,25 @@ class User extends Authenticatable
         ];
     }
 
+     /**
+     * A user can have many posts.
+     */
     public function posts()
     {
         return $this->hasMany(Post::class);
     }
 
+    /**
+    * A user can have many comments.
+    */
     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
 
+    /**
+     * A user has ONE profile.
+     */
     public function profile()
     {
         return $this->hasOne(Profile::class);

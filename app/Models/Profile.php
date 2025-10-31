@@ -13,7 +13,9 @@ class Profile extends Model
         'user_id',
         'bio',
     ];
-    //
+     /**
+     * A profile belongs to ONE user.
+     */
     public function user() {
         return $this->belongsTo(User::class);
     }

@@ -12,11 +12,10 @@ class Category extends Model
     protected $fillable = ['name'];
 
     /**
-     * A category can have many posts (tickets).
+     * A category can have many posts.
      */
     public function posts()
     {
-        // This links to the posts table via the 'category_post' pivot table
         return $this->belongsToMany(Post::class);
     }
 }
