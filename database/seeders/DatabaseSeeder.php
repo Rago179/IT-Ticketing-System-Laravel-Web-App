@@ -16,35 +16,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // ---------------------------------------------------------------------
-        // STEP 1: Run individual Hard-Coded Seeders FIRST.
-        // This process handles truncation, then seeds essential, predictable data.
-        // ---------------------------------------------------------------------
-
-       
-        // 2. Seed essential hard-coded data (order matters for foreign keys)
+        
+        
         $this->call([
             UserSeeder::class,
-            ProfileSeeder::class, // Depends on UserSeeder
+            ProfileSeeder::class, 
             CategorySeeder::class,
-            PostSeeder::class, // Depends on UserSeeder
-            CommentSeeder::class, // Depends on UserSeeder and PostSeeder
-            CategoryPostSeeder::class, // Depends on PostSeeder and CategorySeeder
+            PostSeeder::class, 
+            CommentSeeder::class,
+            CategoryPostSeeder::class, 
         ]);
 
 
-        // ---------------------------------------------------------------------
-        // STEP 2: Run the Factory-Based Seeding Logic.
-        // This adds extra random/realistic data on top of the hard-coded data.
-        // ---------------------------------------------------------------------
-
-        // 1. Create a few EXTRA normal users (Admin/IT are already created)
+       
         \App\Models\User::factory(5)->has(\App\Models\Profile::factory())->create();
         
-        // 2. Define ALL users to be used for random assignment (includes hard-coded users + new factory users)
         $allUsers = \App\Models\User::all();
 
-        // 3. Define ALL categories (includes hard-coded categories + the 5 factory categories below)
         $categories = \App\Models\Category::all()->merge(
             \App\Models\Category::factory(5)->sequence(
                 ['name' => 'General Inquiry'],
@@ -55,19 +43,17 @@ class DatabaseSeeder extends Seeder
             )->create()
         );
         
-        // 4. Create 10 additional posts (tickets) randomly assigned to any user
+
         $posts = \App\Models\Post::factory(10)->create([
             'user_id' => $allUsers->random()->id,
         ]);
         
-        // 5. Loop through these new posts to attach categories and comments
+
         $posts->each(function (\App\Models\Post $post) use ($categories, $allUsers) {
-            // Attach 1 to 3 random categories from the full list (hard-coded + new)
             $post->categories()->attach(
                 $categories->random(rand(1, 3))->pluck('id')->toArray()
             );
 
-            // Add comments for each post
             \App\Models\Comment::factory(rand(1, 3))->create([
                 'post_id' => $post->id,
                 'user_id' => $allUsers->random()->id,
