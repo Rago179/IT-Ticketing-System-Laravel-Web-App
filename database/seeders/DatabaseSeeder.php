@@ -17,23 +17,28 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ---------------------------------------------------------------------
-        // STEP 1: Run the Hard-Coded Seeder FIRST.
-        // This creates essential, predictable data (Admin/IT users, specific
-        // tickets, and categories) and clears the database beforehand.
+        // STEP 1: Run individual Hard-Coded Seeders FIRST.
+        // This process handles truncation, then seeds essential, predictable data.
         // ---------------------------------------------------------------------
-        $this->call(HardCodedSeeder::class);
+
+       
+        // 2. Seed essential hard-coded data (order matters for foreign keys)
+        $this->call([
+            UserSeeder::class,
+            ProfileSeeder::class, // Depends on UserSeeder
+            CategorySeeder::class,
+            PostSeeder::class, // Depends on UserSeeder
+            CommentSeeder::class, // Depends on UserSeeder and PostSeeder
+            CategoryPostSeeder::class, // Depends on PostSeeder and CategorySeeder
+        ]);
 
 
         // ---------------------------------------------------------------------
         // STEP 2: Run the Factory-Based Seeding Logic.
         // This adds extra random/realistic data on top of the hard-coded data.
-        // NOTE: We only generate additional data here, so users/categories/
-        // posts generated below do NOT conflict with the hard-coded ones.
         // ---------------------------------------------------------------------
 
-        // 1. Create a few EXTRA normal users (Admin/IT are already created
-        // by HardCodedSeeder and cleared the database for us).
-        // Since HardCodedSeeder truncated data, the factory users start from a fresh ID.
+        // 1. Create a few EXTRA normal users (Admin/IT are already created)
         \App\Models\User::factory(5)->has(\App\Models\Profile::factory())->create();
         
         // 2. Define ALL users to be used for random assignment (includes hard-coded users + new factory users)
