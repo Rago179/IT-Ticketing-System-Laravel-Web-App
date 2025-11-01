@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             
-            // Set both foreign keys as the composite primary key for efficiency and to enforce unique pairing
             $table->primary(['post_id', 'category_id']);
         });
     }

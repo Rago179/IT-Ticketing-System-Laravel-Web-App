@@ -14,8 +14,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // --- 1. Seed Users (Essential hard-coded accounts) ---
-        // Password for all users will be 'password'
         User::create([
             'id' => 1,
             'name' => 'Admin User',

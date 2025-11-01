@@ -12,7 +12,6 @@ class ProfileSeeder extends Seeder
      */
     public function run(): void
     {
-        // --- 2. Seed Profiles (One-to-One: must match IDs from UserSeeder) ---
         Profile::create([
             'user_id' => 1,
             'bio' => 'Global Administrator for all systems. Escalation point for serious issues.',

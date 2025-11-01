@@ -12,7 +12,6 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
-        // --- 4. Seed Posts (Tickets) ---
         Post::create([
             'id' => 101,
             'user_id' => 3, 

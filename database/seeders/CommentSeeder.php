@@ -12,7 +12,6 @@ class CommentSeeder extends Seeder
      */
     public function run(): void
     {
-        // --- 5. Seed Comments (Related to hard-coded posts and users) ---
         Comment::create([
             'post_id' => 101,
             'user_id' => 2, 

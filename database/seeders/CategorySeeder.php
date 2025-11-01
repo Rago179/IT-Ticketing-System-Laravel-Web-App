@@ -12,7 +12,6 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // --- 3. Seed Categories (Used for filtering/organization) ---
         Category::create(['id' => 1, 'name' => 'Software Bug']);
         Category::create(['id' => 2, 'name' => 'Hardware Request']);
         Category::create(['id' => 3, 'name' => 'Network Issue']);
