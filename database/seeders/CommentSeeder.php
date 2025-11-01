@@ -15,7 +15,8 @@ class CommentSeeder extends Seeder
         Comment::create([
             'post_id' => 101,
             'user_id' => 2, 
-            'content' => 'I have initiated a remote connection to check the printer queue and services. Will update soon.',
+            'content' => 'I have initiated a remote connection to 
+                    check the printer queue and services. Will update soon.',
         ]);
 
         Comment::create([
