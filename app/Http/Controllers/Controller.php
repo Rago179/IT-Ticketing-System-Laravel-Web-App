@@ -1,27 +1,12 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
-use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class CommentController extends Controller
+class Controller extends BaseController
 {
-    public function store(Request $request, $postId)
-    {
-        $request->validate([
-            'content' => 'required|string'
-        ]);
-
-        $post = Post::findOrFail($postId);
-
-        Comment::create([
-            'post_id' => $post->id,
-            'user_id' => Auth::id(),
-            'content' => $request->content,
-        ]);
-
-        return back();
-    }
+    use AuthorizesRequests, ValidatesRequests;
 }
