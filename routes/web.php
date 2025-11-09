@@ -4,14 +4,48 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Models\Post; // Make sure this is imported
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 
-// --- NEW LOGIN ROUTE ---
-// This overrides the Breeze default login page
-// It MUST come before the `require __DIR__.'/auth.php';` line
+Route::get('register', function () {
+    return view('simple-register');
+})->name('register');
+
+Route::post('register', function (Request $request) {
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
+
+    event(new Registered($user));
+
+    Auth::login($user);
+
+    return redirect(route('home', absolute: false));
+});
+
+// --- 1. UPDATED GET LOGIN ROUTE ---
 Route::get('login', function () {
-    return view('simple-login');
+    // Use your existing file: resources/views/simple.login.blade.php
+    return view('simple.login');
 })->name('login');
 
+// --- 2. KEEP THE SAME POST ROUTE ---
+Route::get('login', function () {
+    // Use the new filename with the hyphen
+    return view('simple-login'); 
+})->name('login');
 
 // --- BREEZE DASHBOARD & PROFILE ---
 Route::view('dashboard', 'dashboard')
