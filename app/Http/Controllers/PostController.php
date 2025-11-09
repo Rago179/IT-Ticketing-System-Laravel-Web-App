@@ -38,7 +38,7 @@ class PostController extends Controller
         ]);
 
         Post::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::id(),// Automatically gets the ID of the currently logged-in user
             'title' => $request->title,
             'description' => $request->description,
         ]);
