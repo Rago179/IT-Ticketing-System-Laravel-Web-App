@@ -12,12 +12,15 @@
                     <h3>Posts List</h3>
                     {{-- You can loop through your $posts here later --}}
                     @foreach ($posts as $post)
-                        <div>
-                            <h4>{{ $post->title }}</h4>
-                            <p>By: {{ $post->user->name }}</p>
-                        </div>
-                        <hr>
-                    @endforeach
+                    <div class="mb-4 p-4 border rounded bg-gray-50 hover:bg-gray-100">
+                        <h4 class="text-lg font-bold">
+                            <a href="{{ route('posts.show', $post) }}" class="text-indigo-600 hover:underline">
+                                {{ $post->title }}
+                            </a>
+                        </h4>
+                        <p class="text-sm text-gray-600">By: {{ $post->user->name }} | Comments: {{ $post->comments->count() }}</p>
+                    </div>
+                @endforeach
                 </div>
             </div>
         </div>
