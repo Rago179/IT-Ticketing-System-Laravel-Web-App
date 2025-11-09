@@ -27,6 +27,7 @@ Route::middleware('guest')->group(function () {
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            // Redirect to home instead of dashboard
             return redirect()->intended(route('home'));
         }
 
@@ -61,12 +62,7 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-
-// --- 2. BREEZE DASHBOARD & PROFILE (Keep them for now) ---
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
+// --- 2. PROFILE (Keep this if you want users to be able to edit their data later) ---
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
@@ -78,7 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Your new simple homepage
     Route::get('/', function () {
         $posts = Post::with('user')->latest()->get();
-        return view('home', ['posts' => $posts]);
+        return view('posts.index', ['posts' => $posts]);
     })->name('home');
 
     // Your Post & Comment routes
@@ -93,7 +89,7 @@ Route::post('logout', function (Request $request) {
     Auth::guard('web')->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect('/'); // Redirect to login page after logout
+    return redirect('/login'); // Redirect to login page after logout
 })->name('logout');
 
 

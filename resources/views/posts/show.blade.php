@@ -25,6 +25,7 @@
     <div class="container">
         <a href="{{ route('home') }}" class="back-link">&larr; Back to All Posts</a>
 
+        <!-- THE POST -->
         <h1 class="post-title">{{ $post->title }}</h1>
         <div class="post-meta">
             Posted by <strong>{{ $post->user->name }}</strong> on {{ $post->created_at->format('M d, Y') }}
@@ -33,10 +34,12 @@
             {{ $post->description }}
         </div>
 
+        <!-- COMMENTS SECTION -->
         <div class="comments-section">
             <h2>Comments ({{ $post->comments->count() }})</h2>
 
-            @foreach($post->comments as $comment)
+            <!-- Loop through existing comments -->
+            @forelse ($post->comments as $comment)
                 <div class="comment">
                     <div class="comment-header">
                         <span>{{ $comment->user->name }}</span>
@@ -44,6 +47,7 @@
                     </div>
                     <div>{{ $comment->content }}</div>
                     
+                    <!-- Delete button (only for the comment owner) -->
                     @if(Auth::id() === $comment->user_id)
                         <div style="text-align: right; margin-top: 10px;">
                             <form method="POST" action="{{ route('comments.destroy', $comment) }}">
@@ -54,12 +58,16 @@
                         </div>
                     @endif
                 </div>
-            @endforeach
+            @empty
+                <p>No comments yet.</p>
+            @endforelse
 
+            <!-- ADD A NEW COMMENT -->
             <div style="margin-top: 40px;">
                 <h3>Leave a Comment</h3>
                 <form method="POST" action="{{ route('comments.store') }}">
                     @csrf
+                    <!-- Hidden field linking this comment to the current post -->
                     <input type="hidden" name="post_id" value="{{ $post->id }}">
                     
                     <textarea name="content" required placeholder="Write something..."></textarea>
