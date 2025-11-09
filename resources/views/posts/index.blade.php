@@ -9,24 +9,42 @@
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { margin: 0; }
-        .create-btn { background: #3490dc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
-        .create-btn:hover { background: #2779bd; }
-        .back-link { text-decoration: none; color: #666; display: inline-block; margin-bottom: 20px; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .user-info { font-weight: bold; color: #333; }
+        .create-btn { background: #3490dc; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
+        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
         .post-item { padding: 20px; border-bottom: 1px solid #eee; }
         .post-item:last-child { border-bottom: none; }
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
         .post-title a:hover { text-decoration: underline; }
         .post-meta { color: #888; font-size: 0.9em; }
+        
+        /* Pagination Styles */
+        .pagination-wrapper { margin-top: 30px; }
+        .pagination-wrapper nav > div:first-child { display: none; }
+        .pagination-wrapper nav > div:last-child { display: flex; justify-content: space-between; align-items: center; }
+        .pagination-wrapper span[aria-current="page"] > span { background-color: #3490dc; color: white; border-color: #3490dc; }
+        .pagination-wrapper a, .pagination-wrapper span {
+            display: inline-block; padding: 8px 12px; margin: 0 2px; border: 1px solid #ddd;
+            border-radius: 4px; text-decoration: none; color: #333; font-size: 0.9em;
+        }
+        .pagination-wrapper a:hover { background-color: #f1f1f1; }
+        .pagination-wrapper svg { width: 20px; height: 20px; vertical-align: middle; } 
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="{{ route('home') }}" class="back-link">&larr; Back to Home</a>
-
         <div class="header">
             <h1>All Posts</h1>
-            <a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
+            <div class="header-controls">
+                <span class="user-info">Hi, {{ Auth::user()->name }}</span>
+                <a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
+                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="logout-btn">Log Out</button>
+                </form>
+            </div>
         </div>
 
         <div class="posts-list">
@@ -44,6 +62,11 @@
             @empty
                 <p>No posts found.</p>
             @endforelse
+        </div>
+
+        <!-- PAGINATION LINKS -->
+        <div class="pagination-wrapper">
+            {{ $posts->links() }}
         </div>
     </div>
 </body>

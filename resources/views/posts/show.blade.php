@@ -7,7 +7,16 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .back-link { text-decoration: none; color: #666; display: inline-block; margin-bottom: 20px; }
+        
+        /* Header Styles */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;}
+        .header-title { font-size: 1.5em; font-weight: bold; margin: 0; text-decoration: none; color: #333; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .user-info { font-weight: bold; color: #333; }
+        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
+
+        /* Page Specific Styles */
+        .back-link { text-decoration: none; color: #3490dc; display: inline-block; margin-bottom: 20px; }
         .post-title { margin-top: 0; }
         .post-meta { color: #888; font-size: 0.9em; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .post-content { font-size: 1.1em; line-height: 1.6; margin-bottom: 40px; }
@@ -23,9 +32,19 @@
 </head>
 <body>
     <div class="container">
+        <div class="header">
+            <a href="{{ route('home') }}" class="header-title">{{ config('app.name', 'My App') }}</a>
+            <div class="header-controls">
+                <span class="user-info">Hi, {{ Auth::user()->name }}</span>
+                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="logout-btn">Log Out</button>
+                </form>
+            </div>
+        </div>
+
         <a href="{{ route('home') }}" class="back-link">&larr; Back to All Posts</a>
 
-        <!-- THE POST -->
         <h1 class="post-title">{{ $post->title }}</h1>
         <div class="post-meta">
             Posted by <strong>{{ $post->user->name }}</strong> on {{ $post->created_at->format('M d, Y') }}
@@ -34,12 +53,10 @@
             {{ $post->description }}
         </div>
 
-        <!-- COMMENTS SECTION -->
         <div class="comments-section">
             <h2>Comments ({{ $post->comments->count() }})</h2>
 
-            <!-- Loop through existing comments -->
-            @forelse ($post->comments as $comment)
+            @foreach($post->comments as $comment)
                 <div class="comment">
                     <div class="comment-header">
                         <span>{{ $comment->user->name }}</span>
@@ -47,7 +64,6 @@
                     </div>
                     <div>{{ $comment->content }}</div>
                     
-                    <!-- Delete button (only for the comment owner) -->
                     @if(Auth::id() === $comment->user_id)
                         <div style="text-align: right; margin-top: 10px;">
                             <form method="POST" action="{{ route('comments.destroy', $comment) }}">
@@ -58,18 +74,13 @@
                         </div>
                     @endif
                 </div>
-            @empty
-                <p>No comments yet.</p>
-            @endforelse
+            @endforeach
 
-            <!-- ADD A NEW COMMENT -->
             <div style="margin-top: 40px;">
                 <h3>Leave a Comment</h3>
                 <form method="POST" action="{{ route('comments.store') }}">
                     @csrf
-                    <!-- Hidden field linking this comment to the current post -->
                     <input type="hidden" name="post_id" value="{{ $post->id }}">
-                    
                     <textarea name="content" required placeholder="Write something..."></textarea>
                     <button type="submit" class="submit-btn">Post Comment</button>
                 </form>

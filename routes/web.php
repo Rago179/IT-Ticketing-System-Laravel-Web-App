@@ -13,85 +13,50 @@ use Illuminate\Auth\Events\Registered;
 
 // --- 1. CUSTOM GUEST ROUTES ---
 Route::middleware('guest')->group(function () {
-    
-    // --- LOGIN ---
-    Route::get('login', function () {
-        return view('simple-login'); 
-    })->name('login');
-
+    Route::get('login', function () { return view('simple-login'); })->name('login');
     Route::post('login', function (Request $request) {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
+        $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required']]);
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            // Redirect to home instead of dashboard
             return redirect()->intended(route('home'));
         }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->onlyInput('email');
     });
 
-    // --- REGISTER ---
-    Route::get('register', function () {
-        return view('simple-register');
-    })->name('register');
-
+    Route::get('register', function () { return view('simple-register'); })->name('register');
     Route::post('register', function (Request $request) {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
+        $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password)]);
         event(new Registered($user));
-
         Auth::login($user);
-
         return redirect(route('home'));
     });
 });
 
-// --- 2. PROFILE (Keep this if you want users to be able to edit their data later) ---
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
-
-// --- 3. YOUR MAIN AUTH GROUP ---
+// --- 2. YOUR MAIN AUTH GROUP ---
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Your new simple homepage
+    // Homepage now uses paginate(5) instead of get()
     Route::get('/', function () {
-        $posts = Post::with('user')->latest()->get();
+        $posts = Post::with('user')->latest()->paginate(5);
         return view('posts.index', ['posts' => $posts]);
     })->name('home');
 
-    // Your Post & Comment routes
     Route::resource('posts', PostController::class);
     Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
-    Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])
-        ->name('posts.updateStatus');
+    Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
 });
 
-// --- 4. YOUR CUSTOM LOGOUT ROUTE ---
 Route::post('logout', function (Request $request) {
     Auth::guard('web')->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect('/login'); // Redirect to login page after logout
+    return redirect('/login');
 })->name('logout');
 
-
-// --- 5. BREEZE AUTH FILE (must be last) ---
 require __DIR__.'/auth.php';
