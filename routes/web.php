@@ -20,7 +20,8 @@ Route::get('/secret-page', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // This single line creates standard routes for index, create, store, show, etc.
     Route::resource('posts', PostController::class);
-
+    
+    Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
     // Your custom route for updating status
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])
         ->name('posts.updateStatus');

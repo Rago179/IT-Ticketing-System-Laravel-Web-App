@@ -24,4 +24,18 @@ class CommentController extends Controller
 
         return back();
     }
+    public function destroy($id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        // MANUAL CHECK: Only allow if the logged-in user is the comment's owner
+        if (Auth::id() !== $comment->user_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $comment->delete();
+
+        return back();
+    }
+    
 }
