@@ -92,8 +92,14 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
-        //
+        // MANUAL CHECK: Is the current user the owner?
+        if (Auth::id() !== $post->user_id) {
+            abort(403, 'Unauthorized Access');
+        }
+
+        $post->delete();
+        return redirect()->route('posts.index');
     }
 }

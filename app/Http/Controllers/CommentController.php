@@ -8,22 +8,23 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, $postId)
-    {
-        $request->validate([
-            'content' => 'required|string'
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'content' => 'required|string',
+        'post_id' => 'required|exists:posts,id', // Add validation for the hidden input
+    ]);
 
-        $post = Post::findOrFail($postId);
+    // Fetch the post_id directly from the form request
+    Comment::create([
+        'post_id' => $request->post_id, 
+        'user_id' => Auth::id(),
+        'content' => $request->content,
+    ]);
 
-        Comment::create([
-            'post_id' => $post->id,
-            'user_id' => Auth::id(),
-            'content' => $request->content,
-        ]);
+    return back()->with('success', 'Comment posted!');
+}
 
-        return back();
-    }
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);
