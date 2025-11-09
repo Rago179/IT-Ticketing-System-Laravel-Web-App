@@ -10,12 +10,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
+                    <div class="mb-6">
+                        <a href="{{ route('posts.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+                            &larr; Back to All Posts
+                        </a>
+                    </div>
+
                     <h3 class="text-lg font-bold mb-2">{{ $post->title }}</h3>
                     <p class="mb-4 text-gray-600">Posted by {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }}</p>
                     <p class="text-lg border-b pb-4 mb-4">{{ $post->description }}</p>
 
                     <h4 class="font-bold text-md mb-4">Comments ({{ $post->comments->count() }})</h4>
-
                     <div class="space-y-4 mb-8">
                         @forelse ($post->comments as $comment)
                             <div class="bg-gray-50 p-4 rounded-lg">
