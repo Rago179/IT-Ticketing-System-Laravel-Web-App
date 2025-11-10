@@ -57,7 +57,11 @@
                 <textarea id="description" name="description" required>{{ old('description') }}</textarea>
                 @error('description') <div class="error">{{ $message }}</div> @enderror
             </div>
-            
+            <div class="form-group">
+                <label for="priority">Priority (1 = Lowest, 4 = Highest)</label>
+                <input type="text" id="priority" name="priority" value="{{ old('priority', 1) }}" required>
+                @error('priority') <div class="error">{{ $message }}</div> @enderror
+            </div>
             <div>
                 <button type="submit" class="submit-btn">Publish Post</button>
             </div>

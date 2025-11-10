@@ -47,7 +47,8 @@
 
         <h1 class="post-title">{{ $post->title }}</h1>
         <div class="post-meta">
-            Posted by <strong>{{ $post->user->name }}</strong> on {{ $post->created_at->format('M d, Y') }}
+            Priority: <strong>{{ $post->priority }}/4</strong> 
+            | Posted by <strong>{{ $post->user->name }}</strong> on {{ $post->created_at->format('M d, Y') }}
         </div>
         <div class="post-content">
             {{ $post->description }}

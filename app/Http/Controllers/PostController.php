@@ -14,8 +14,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
-        $posts = Post::with('user')->latest()->get();
+        // Change get() to paginate(10)
+        $posts = Post::with('user')->latest()->paginate(10);
+        
         return view('posts.index', compact('posts'));
     }
 
@@ -35,12 +36,19 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'priority' => 'required|integer|between:1,4',
+        ], [
+            // Custom message for when it's not a number
+            'priority.integer' => 'Only numbers are allowed for priority.',
+            // Custom message for when it's a number, but not 1-4
+            'priority.between' => 'Priority must be a number between 1 and 4.',
         ]);
 
         Post::create([
-            'user_id' => Auth::id(),// Automatically gets the ID of the currently logged-in user
+            'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
+            'priority' => $request->priority,
         ]);
 
         return redirect()->route('posts.index');

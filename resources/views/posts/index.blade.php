@@ -13,8 +13,14 @@
         .user-info { font-weight: bold; color: #333; }
         .create-btn { background: #3490dc; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
         .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
-        .post-item { padding: 20px; border-bottom: 1px solid #eee; }
+        .post-item { padding: 20px; border-bottom: 1px solid #eee; position: relative;}
         .post-item:last-child { border-bottom: none; }
+        .status-badge { position: absolute; top: 20px; right: 20px; padding: 6px 12px; border-radius: 20px;
+             font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        .status-open { background-color: #3adf79ff;}
+        .status-ongoing { background-color: #d8f729ff;}
+        .status-resolved { background-color: #ff3434ff;}
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
         .post-title a:hover { text-decoration: underline; }
@@ -50,11 +56,31 @@
         <div class="posts-list">
             @forelse ($posts as $post)
                 <div class="post-item">
+                    {{-- STATUS BADGE LOGIC START --}}
+                    @php
+                        $statusClass = match($post->status) {
+                            'in_progress' => 'status-ongoing',
+                            'resolved' => 'status-resolved',
+                            default => 'status-open',
+                        };
+                        
+                        $statusText = match($post->status) {
+                            'in_progress' => 'Ongoing',
+                            'resolved' => 'Resolved',
+                            default => 'Open',
+                        };
+                    @endphp
+                    <span class="status-badge {{ $statusClass }}">
+                        {{ $statusText }}
+                    </span>
+                    {{-- STATUS BADGE LOGIC END --}}
+
                     <h2 class="post-title">
                         <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
                     </h2>
                     <div class="post-meta">
-                        Posted by {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }}
+                        <span style="color: #333; font-weight: bold;">Priority: {{ $post->priority }}/4</span>
+                        | Posted by {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }}
                         | Comments: {{ $post->comments->count() }}
                     </div>
                     <p>{{ Str::limit($post->description, 150) }}</p>
