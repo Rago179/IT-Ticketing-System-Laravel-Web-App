@@ -35,6 +35,23 @@ Route::middleware('guest')->group(function () {
         Auth::login($user);
         return redirect(route('home'));
     });
+  
+    Route::get('forgot-password', function () {
+        return view('simple-forgot-password');
+    })->name('password.request');
+
+    Route::post('forgot-password', function (Illuminate\Http\Request $request) {
+        $request->validate(['email' => 'required|email']);
+        
+        // Send the link
+        $status = Illuminate\Support\Facades\Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Illuminate\Support\Facades\Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withErrors(['email' => __($status)]);
+    })->name('password.email');
 });
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
