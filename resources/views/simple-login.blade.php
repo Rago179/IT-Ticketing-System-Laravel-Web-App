@@ -36,12 +36,13 @@
                 <input type="password" id="password" name="password" required>
                 @error('password') <div class="error">{{ $message }}</div> @enderror
             </div>
-            
-            <div class="form-group" style="font-size: 0.9em; display: flex; align-items: center;">
-                <input type="checkbox" name="remember" id="remember" style="width: auto; margin-right: 8px;">
-                <label for="remember" style="margin-bottom: 0; font-weight: normal;">Remember me</label>
+            <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9em;">
+                <div style="display: flex; align-items: center;">
+                    <input type="checkbox" name="remember" id="remember" style="width: auto; margin-right: 8px;">
+                    <label for="remember" style="margin-bottom: 0; font-weight: normal;">Remember me</label>
+                </div>
+                <a href="{{ route('password.request') }}" style="color: #3490dc; text-decoration: none;">Forgot password?</a>
             </div>
-
             <button type="submit">Log In</button>
         </form>
 
