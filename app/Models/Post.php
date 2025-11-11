@@ -7,12 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory;  
+    use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'description', 'status','priority','assigned_to_user_id','is_pinned'];
     /**
-     * Many posts can belong to ONE user.
+     * The attributes that are mass assignable.
+     *
+     * @var array
      */
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'status',
+        'priority',
+        'assigned_to_user_id',
+        'is_pinned', // <-- ADDED THIS
+    ];
 
     public function user()
     {
@@ -23,17 +33,15 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
- 
-    /**
-     *  Many post can belong to many categories.
-     */
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class);
-    }
 
     public function assignedTo()
     {
         return $this->belongsTo(User::class, 'assigned_to_user_id');
+    }
+
+    // ADD THIS RELATIONSHIP
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
     }
 }

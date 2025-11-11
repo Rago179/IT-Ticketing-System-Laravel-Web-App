@@ -8,12 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['name'];
 
-    /**
-     * A category can have many posts.
-     */
+    // ADD THIS RELATIONSHIP
     public function posts()
     {
         return $this->belongsToMany(Post::class);
