@@ -31,4 +31,9 @@ class Post extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function assignedTo()
+    {
+        return $this->belongsTo(User::class, 'assigned_to_user_id');
+    }
 }

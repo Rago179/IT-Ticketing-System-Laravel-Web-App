@@ -45,8 +45,15 @@
             <h1>All Posts</h1>
             <div class="header-controls">
                 <span class="user-info">Hi, {{ Auth::user()->name }}</span>
+                
+                <!-- ADD THIS BLOCK -->
+                @if(in_array(Auth::user()->role, ['it', 'admin']))
+                    <a href="{{ route('it.dashboard') }}" class="create-btn" style="background-color: #ea580c;">IT Dashboard</a>
+                @endif
+                <!-- END OF BLOCK -->
+
                 <a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
-                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
                     <button type="submit" class="logout-btn">Log Out</button>
                 </form>

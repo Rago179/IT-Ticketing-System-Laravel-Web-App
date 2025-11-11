@@ -90,6 +90,58 @@ class PostController extends Controller
     }
 
     /**
+     * Display the IT dashboard with filtering and sorting.
+     */
+    public function itDashboard(Request $request)
+    {
+        // 1. Authorize: Only 'it' or 'admin' can see this page
+        if (!in_array(Auth::user()->role, ['it', 'admin'])) {
+            abort(403, 'Unauthorized Access');
+        }
+
+        // 2. Start query
+        $query = Post::with('user', 'assignedTo');
+
+        // 3. Handle "Assigned to Me" filter
+        if ($request->has('assigned_to_me')) {
+            $query->where('assigned_to_user_id', Auth::id());
+        }
+
+        // 4. Handle "Priority" sorting
+        if ($request->get('sort') === 'priority') {
+            $query->orderBy('priority', 'desc'); // Order by highest priority
+        } else {
+            $query->latest(); // Default sort by newest
+        }
+
+        // 5. Paginate results
+        $posts = $query->paginate(10)->withQueryString(); // withQueryString preserves filters
+
+        // 6. Return the new view
+        return view('it-dashboard', compact('posts'));
+    }
+
+    /**
+     * Assign a ticket to the currently logged-in IT user.
+     */
+    public function assign(Post $post)
+    {
+        // 1. Authorize
+        if (!in_array(Auth::user()->role, ['it', 'admin'])) {
+            abort(403, 'Unauthorized Access');
+        }
+
+        // 2. Assign the post and set status to 'in_progress'
+        $post->update([
+            'assigned_to_user_id' => Auth::id(),
+            'status' => 'in_progress'
+        ]);
+
+        // 3. Redirect back
+        return back()->with('success', 'Ticket assigned to you and set to In Progress.');
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)

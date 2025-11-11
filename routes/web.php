@@ -67,7 +67,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('posts', PostController::class);
     Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
+
+    // Route for the IT dashboard page
+    Route::get('/it-dashboard', [App\Http\Controllers\PostController::class, 'itDashboard'])
+        ->name('it.dashboard');
+
+    // Route to handle assigning a ticket to the logged-in IT user
+    Route::patch('/posts/{post}/assign', [App\Http\Controllers\PostController::class, 'assign'])
+        ->name('posts.assign');
 });
+
 
 Route::post('logout', function (Request $request) {
     Auth::guard('web')->logout();
