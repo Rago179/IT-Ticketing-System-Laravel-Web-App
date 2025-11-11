@@ -10,28 +10,42 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
+/**
+     * Display the new homepage (pinned posts & categories).
      */
     public function index(Request $request)
     {
-        // 1. Fetch all categories for the filter dropdown
-        $categories = Category::all();
+        // 1. Fetch pinned posts
+        $pinnedPosts = Post::with(['user', 'categories'])
+                            ->where('is_pinned', true)
+                            ->latest()
+                            ->take(4) // Get max 4 pinned posts
+                            ->get();
 
-        // 2. Start the query
-        $query = Post::with(['user', 'categories'])->latest();
+        // 2. Fetch categories, counting how many posts are in each
+        $categories = Category::withCount('posts')->get();
 
-        // 3. Apply Category Filter if present in URL (e.g., ?category=2)
-        if ($request->filled('category')) {
-            $query->whereHas('categories', function ($q) use ($request) {
-                $q->where('categories.id', $request->category);
-            });
+        return view('posts.index', compact('pinnedPosts', 'categories'));
+    }
+
+    /**
+     * Toggle the pinned status of a post (Admin Only).
+     */
+    public function pin(Post $post)
+    {
+        // 1. Authorize: Only 'admin' can pin
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized Access');
         }
 
-        // 4. Paginate
-        $posts = $query->paginate(10)->withQueryString();
+        // 2. Toggle the is_pinned status
+        $post->update([
+            'is_pinned' => !$post->is_pinned
+        ]);
 
-        return view('posts.index', compact('posts', 'categories'));
+        $message = $post->is_pinned ? 'Post pinned successfully.' : 'Post unpinned successfully.';
+
+        return back()->with('success', $message);
     }
 
     /**

@@ -71,6 +71,26 @@
                         </div>
                     @enderror
                 </form>
+                </form>
+                
+                {{-- ADD THIS NEW FORM (Admin Only) --}}
+                @if(Auth::user()->role === 'admin')
+                <form action="{{ route('posts.pin', $post) }}" method="POST" style="margin-top: 10px;">
+                    @csrf
+                    @method('PATCH')
+                    @if($post->is_pinned)
+                        <button type"submit" style="background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                            📌 Unpin Post
+                        </button>
+                    @else
+                        <button type"submit" style="background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                            📌 Pin Post
+                        </button>
+                    @endif
+                </form>
+                @endif
+                
+            </div>
             </div>
         @endif
         {{-- END: Admin/IT Controls --}}
