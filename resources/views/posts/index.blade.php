@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Posts</title>
+    <title>All Posts - {{ config('app.name', 'IT-Ticket-System') }}</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -16,15 +16,20 @@
         .post-item { padding: 20px; border-bottom: 1px solid #eee; position: relative;}
         .post-item:last-child { border-bottom: none; }
         .status-badge { position: absolute; top: 20px; right: 20px; padding: 6px 12px; border-radius: 20px;
-             font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
+            font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+            color: white; /* Set text color to white for all badges */
+        }
 
-        .status-open { background-color: #4083ffff;}
-        .status-ongoing { background-color: #d8f729ff;}
-        .status-resolved { background-color: #06d628ff;}
+        .status-open { background-color: #16a34a; } /* Solid Green */
+        .status-ongoing { background-color: #ea580c; } /* Solid Orange */
+        .status-resolved { background-color: #dc2626; } /* Solid Red */
+        
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
         .post-title a:hover { text-decoration: underline; }
         .post-meta { color: #888; font-size: 0.9em; }
+        .post-meta a { color: #3490dc; text-decoration: none; font-weight: bold; }
+        .post-meta a:hover { text-decoration: underline; }
         
         /* Pagination Styles */
         .pagination-wrapper { margin-top: 30px; }
@@ -72,17 +77,14 @@
         </div>
 
         <script>
-            // Function to close the alert with a fade-out effect
             function closeAlert() {
                 const alert = document.getElementById('success-alert');
                 if (alert) {
                     alert.style.transition = "opacity 0.5s ease";
                     alert.style.opacity = "0";
-                    setTimeout(() => alert.remove(), 500); // Remove from DOM after fade out
+                    setTimeout(() => alert.remove(), 500);
                 }
             }
-
-            // Auto-close after 3 seconds (3000 milliseconds)
             setTimeout(closeAlert, 3000);
         </script>
     @endif
@@ -91,25 +93,24 @@
         <div class="header">
             <h1>All Posts</h1>
             <div class="header-controls">
-                <span class="user-info">Hi, {{ Auth::user()->name }}</span>
+                <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}" style="text-decoration:none; color: #3490dc;">{{ Auth::user()->name }}</a></span>
                 
-                <!-- ADD THIS BLOCK -->
                 @if(in_array(Auth::user()->role, ['it', 'admin']))
                     <a href="{{ route('it.dashboard') }}" class="create-btn" style="background-color: #ea580c;">IT Dashboard</a>
                 @endif
-                <!-- END OF BLOCK -->
 
                 <a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
                     <button type="submit" class="logout-btn">Log Out</button>
                 </form>
             </div>
         </div>
-          <div style="margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+          <!-- Filter Bar -->
+        <div style="margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
             <strong style="color: #555;">Filter by:</strong>
             
-            <form method="GET" action="{{ route('posts.index') }}" style="margin: 0;">
+            <form method="GET" action="{{ route('home') }}" style="margin: 0;">
                 <select name="category" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
                     <option value="">All Categories</option>
                     @foreach($categories as $category)
@@ -121,7 +122,7 @@
             </form>
 
             @if(request()->filled('category'))
-                <a href="{{ route('posts.index') }}" style="text-decoration: none; color: #dc2626; font-size: 0.9em;">
+                <a href="{{ route('home') }}" style="text-decoration: none; color: #dc2626; font-size: 0.9em;">
                     &times; Clear Filter
                 </a>
             @endif
@@ -151,9 +152,18 @@
                     <h2 class="post-title">
                         <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
                     </h2>
+
+                    <div style="margin-bottom: 10px;">
+                        @foreach($post->categories as $category)
+                            <span style="background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; margin-right: 5px;">
+                                {{ $category->name }}
+                            </span>
+                        @endforeach
+                    </div>
+
                     <div class="post-meta">
                         <span style="color: #333; font-weight: bold;">Priority: {{ $post->priority }}/4</span>
-                        | Posted by {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }}
+                        | Posted by <a href="{{ route('users.show', $post->user) }}">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
                         | Comments: {{ $post->comments->count() }}
                     </div>
                     <p>{{ Str::limit($post->description, 150) }}</p>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\UserController; // <-- ADD THIS
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -53,20 +54,14 @@ Route::middleware('guest')->group(function () {
     })->name('password.email');
 });
 
+// This is the existing route for the LOGGED-IN user's own profile settings
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 // --- 2. YOUR MAIN AUTH GROUP ---
 Route::middleware(['auth', 'verified'])->group(function () {
     
-    // Point 'home' to the 'allposts' URL for login redirects
-    // This now uses the controller method instead of a closure
     Route::get('/allposts', [PostController::class, 'index'])->name('home');
-
-    // Standard resource routes for posts
-    // We can keep 'posts.index' pointing to /posts for standard REST conventions if desired, 
-    // but /allposts is now your main dashboard.
     Route::resource('posts', PostController::class);
-
     Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
 
@@ -75,6 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('it.dashboard');
     Route::patch('/posts/{post}/assign', [PostController::class, 'assign'])
         ->name('posts.assign');
+
+    // --- ADD THIS ROUTE FOR PUBLIC USER PROFILES ---
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 });
 
 Route::post('logout', function (Request $request) {

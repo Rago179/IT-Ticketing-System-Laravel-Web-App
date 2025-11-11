@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Dashboard</title>
     <style>
-        /* Re-using styles from your index.blade.php for consistency */
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -15,29 +14,27 @@
         .create-btn { background: #3490dc; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
         .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
         
-        /* Filter Bar Styles */
-        .filter-bar { margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; gap: 10px; align-items: center; }
+        .filter-bar { margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .filter-bar a, .filter-bar button {
             text-decoration: none; padding: 8px 12px; border-radius: 5px; background: white; border: 1px solid #ccc;
             color: #333; font-weight: bold; cursor: pointer; font-size: 0.9em;
         }
         .filter-bar a:hover, .filter-bar button:hover { background: #e2e8f0; }
 
-        /* Post Item Styles */
         .post-item { padding: 20px; border-bottom: 1px solid #eee; position: relative; }
         .post-item:last-child { border-bottom: none; }
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
         .post-title a:hover { text-decoration: underline; }
         .post-meta { color: #888; font-size: 0.9em; margin-bottom: 10px;}
+        .post-meta a { color: #3490dc; text-decoration: none; font-weight: bold; }
+        .post-meta a:hover { text-decoration: underline; }
         .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
         
-        /* Status Form Styles */
         .status-form select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.9em; }
         .assign-btn { background: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .assign-btn:hover { background: #15803d; }
         
-        /* Pagination Styles */
         .pagination-wrapper { margin-top: 30px; }
         .pagination-wrapper nav > div:first-child { display: none; }
         .pagination-wrapper nav > div:last-child { display: flex; justify-content: space-between; align-items: center; }
@@ -53,7 +50,7 @@
         <div class="header">
             <h1>IT Dashboard</h1>
             <div class="header-controls">
-                <span class="user-info">Hi, {{ Auth::user()->name }}</span>
+                <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}" style="text-decoration:none; color: #3490dc;">{{ Auth::user()->name }}</a></span>
                 <a href="{{ route('home') }}" class="create-btn" style="background-color:#64748b;">All Posts</a>
                  <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
@@ -65,11 +62,24 @@
         <!-- Filter/Sort Bar -->
         <div class="filter-bar">
             <span>View:</span>
-            <a href="{{ route('it.dashboard') }}">All Tickets</a>
-            <a href="{{ route('it.dashboard', ['assigned_to_me' => 1]) }}">Assigned to Me</a>
-            <span>Sort By:</span>
-            <a href="{{ route('it.dashboard', request()->except('sort')) }}">Latest</a>
-            <a href="{{ route('it.dashboard', array_merge(request()->all(), ['sort' => 'priority'])) }}">Priority</a>
+            <a href="{{ route('it.dashboard') }}" 
+               style="{{ !request()->filled('assigned_to_me') ? 'background-color: #3490dc; color: white;' : '' }}">
+               All Tickets
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['assigned_to_me' => 1]) }}"
+               style="{{ request()->filled('assigned_to_me') ? 'background-color: #3490dc; color: white;' : '' }}">
+               Assigned to Me
+            </a>
+            
+            <span style="margin-left: 20px;">Sort By:</span>
+            <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}"
+               style="{{ !request()->filled('sort') ? 'background-color: #64748b; color: white;' : '' }}">
+               Latest
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['sort' => 'priority']) }}"
+               style="{{ request()->get('sort') === 'priority' ? 'background-color: #64748b; color: white;' : '' }}">
+               Priority
+            </a>
         </div>
 
         <!-- Session Success Message -->
@@ -88,9 +98,16 @@
                     
                     <div class="post-meta">
                         <span style="color: #333; font-weight: bold;">Priority: {{ $post->priority }}/4</span>
-                        | Submitted by: {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }}
+                        | Submitted by: <a href="{{ route('users.show', $post->user) }}">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
                         <br>
-                        <strong>Assigned to: {{ $post->assignedTo ? $post->assignedTo->name : 'Unassigned' }}</strong>
+                        <strong>
+                            Assigned to: 
+                            @if($post->assignedTo)
+                                <a href="{{ route('users.show', $post->assignedTo) }}">{{ $post->assignedTo->name }}</a>
+                            @else
+                                Unassigned
+                            @endif
+                        </strong>
                     </div>
                     
                     <p>{{ Str::limit($post->description, 150) }}</p>
