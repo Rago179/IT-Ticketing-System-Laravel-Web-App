@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
 
+// --- 0. NEW PUBLIC HOMEPAGE ---
+Route::view('/', 'welcome')->name('welcome');
+
 // --- 1. CUSTOM GUEST ROUTES ---
 Route::middleware('guest')->group(function () {
     Route::get('login', function () { return view('simple-login'); })->name('login');
@@ -35,19 +38,15 @@ Route::middleware('guest')->group(function () {
         Auth::login($user);
         return redirect(route('home'));
     });
-  
+
+    // Custom Forgot Password Routes
     Route::get('forgot-password', function () {
         return view('simple-forgot-password');
     })->name('password.request');
 
-    Route::post('forgot-password', function (Illuminate\Http\Request $request) {
+    Route::post('forgot-password', function (Request $request) {
         $request->validate(['email' => 'required|email']);
-        
-        // Send the link
-        $status = Illuminate\Support\Facades\Password::sendResetLink(
-            $request->only('email')
-        );
-
+        $status = Illuminate\Support\Facades\Password::sendResetLink($request->only('email'));
         return $status === Illuminate\Support\Facades\Password::RESET_LINK_SENT
                     ? back()->with('status', __($status))
                     : back()->withErrors(['email' => __($status)]);
@@ -58,25 +57,25 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 // --- 2. YOUR MAIN AUTH GROUP ---
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Homepage now uses paginate(5) instead of get()
-    Route::get('/', function () {
-        $posts = Post::with('user')->latest()->paginate(5);
-        return view('posts.index', ['posts' => $posts]);
-    })->name('home');
+    
+    // Point 'home' to the 'allposts' URL for login redirects
+    // This now uses the controller method instead of a closure
+    Route::get('/allposts', [PostController::class, 'index'])->name('home');
 
+    // Standard resource routes for posts
+    // We can keep 'posts.index' pointing to /posts for standard REST conventions if desired, 
+    // but /allposts is now your main dashboard.
     Route::resource('posts', PostController::class);
+
     Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
 
-    // Route for the IT dashboard page
-    Route::get('/it-dashboard', [App\Http\Controllers\PostController::class, 'itDashboard'])
+    // IT Dashboard Routes
+    Route::get('/it-dashboard', [PostController::class, 'itDashboard'])
         ->name('it.dashboard');
-
-    // Route to handle assigning a ticket to the logged-in IT user
-    Route::patch('/posts/{post}/assign', [App\Http\Controllers\PostController::class, 'assign'])
+    Route::patch('/posts/{post}/assign', [PostController::class, 'assign'])
         ->name('posts.assign');
 });
-
 
 Route::post('logout', function (Request $request) {
     Auth::guard('web')->logout();
