@@ -46,6 +46,33 @@
         <a href="{{ route('home') }}" class="back-link">&larr; Back to All Posts</a>
 
         <h1 class="post-title">{{ $post->title }}</h1>
+{{-- START: Admin/IT Controls --}}
+        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'it')
+            <div style="margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; border-left: 5px solid #3490dc;">
+                <h3 style="margin-top: 0; margin-bottom: 10px;">IT/Admin Controls</h3>
+                <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <label for="status" style="font-weight: bold; margin-right: 10px;">Update Status:</label>
+                        <select name="status" id="status" onchange="this.form.submit()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="open" {{ $post->status == 'open' ? 'selected' : '' }}>Open</option>
+                            <option value="in_progress" {{ $post->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="resolved" {{ $post->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
+                        </select>
+                        <noscript><button type="submit" style="margin-left: 10px;">Update</button></noscript>
+                    </div>
+                    {{-- ERROR MESSAGE DISPLAY --}}
+                    @error('status')
+                        <div style="color: #dc2626; font-weight: bold; margin-top: 10px; font-size: 0.9em;">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </form>
+            </div>
+        @endif
+        {{-- END: Admin/IT Controls --}}
+
         <div class="post-meta">
             Priority: <strong>{{ $post->priority }}/4</strong> 
             | Posted by <strong>{{ $post->user->name }}</strong> on {{ $post->created_at->format('M d, Y') }}

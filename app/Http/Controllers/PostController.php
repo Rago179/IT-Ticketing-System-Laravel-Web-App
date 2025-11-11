@@ -51,7 +51,7 @@ class PostController extends Controller
             'priority' => $request->priority,
         ]);
 
-        return redirect()->route('posts.index');
+        return redirect()->route('posts.index')->with('success', 'Post published successfully!');
     }
 
     /**
@@ -76,6 +76,19 @@ class PostController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // --- NEW LOGIC START ---
+        // If trying to mark as 'resolved', check for at least one comment from this user
+        if ($request->status === 'resolved') {
+            $hasCommented = $post->comments()
+                                ->where('user_id', Auth::id())
+                                ->exists();
+
+            if (!$hasCommented) {
+                return back()->withErrors(['status' => 'You must add a comment before resolving this ticket.']);
+            }
+        }
+        // --- NEW LOGIC END ---
+
         $post->update(['status' => $request->status]);
 
         return back()->with('success', 'Status updated!');
@@ -94,17 +107,24 @@ class PostController extends Controller
      */
     public function itDashboard(Request $request)
     {
-        // 1. Authorize: Only 'it' or 'admin' can see this page
+        // 1. Authorize
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
             abort(403, 'Unauthorized Access');
         }
 
-        // 2. Start query
         $query = Post::with('user', 'assignedTo');
 
-        // 3. Handle "Assigned to Me" filter
-        if ($request->has('assigned_to_me')) {
+        // 2. Handle "Assigned to Me" filter
+        // Changed from 'has' to 'filled' to ensure value is present
+        if ($request->filled('assigned_to_me')) {
             $query->where('assigned_to_user_id', Auth::id());
+        }
+
+        // 3. Handle Sorting
+        if ($request->get('sort') === 'priority') {
+            $query->orderBy('priority', 'desc');
+        } else {
+            $query->latest();
         }
 
         // 4. Handle "Priority" sorting

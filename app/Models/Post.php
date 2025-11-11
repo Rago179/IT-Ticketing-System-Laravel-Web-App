@@ -9,7 +9,7 @@ class Post extends Model
 {
     use HasFactory;  
 
-    protected $fillable = ['user_id', 'title', 'description', 'status','priority'];
+    protected $fillable = ['user_id', 'title', 'description', 'status','priority','assigned_to_user_id'];
     /**
      * Many posts can belong to ONE user.
      */

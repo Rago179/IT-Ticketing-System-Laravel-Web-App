@@ -18,9 +18,9 @@
         .status-badge { position: absolute; top: 20px; right: 20px; padding: 6px 12px; border-radius: 20px;
              font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        .status-open { background-color: #3adf79ff;}
+        .status-open { background-color: #4083ffff;}
         .status-ongoing { background-color: #d8f729ff;}
-        .status-resolved { background-color: #ff3434ff;}
+        .status-resolved { background-color: #06d628ff;}
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
         .post-title a:hover { text-decoration: underline; }
@@ -40,6 +40,53 @@
     </style>
 </head>
 <body>
+    {{-- START: Success Notification --}}
+    @if (session('success'))
+        <div id="success-alert" style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            font-weight: bold;
+        ">
+            <span>{{ session('success') }}</span>
+            <button onclick="closeAlert()" style="
+                background: none;
+                border: none;
+                color: #15803d;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 0 0 0 15px;
+                line-height: 1;
+            ">&times;</button>
+        </div>
+
+        <script>
+            // Function to close the alert with a fade-out effect
+            function closeAlert() {
+                const alert = document.getElementById('success-alert');
+                if (alert) {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500); // Remove from DOM after fade out
+                }
+            }
+
+            // Auto-close after 3 seconds (3000 milliseconds)
+            setTimeout(closeAlert, 3000);
+        </script>
+    @endif
+    {{-- END: Success Notification --}}
     <div class="container">
         <div class="header">
             <h1>All Posts</h1>
