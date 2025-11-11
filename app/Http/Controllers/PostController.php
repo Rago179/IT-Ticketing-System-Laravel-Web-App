@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\Category; // <-- Ensure this is imported
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +22,7 @@ class PostController extends Controller
                             ->get();
 
         // 2. Fetch categories, counting how many posts are in each
-        $categories = Category::withCount('posts')->get();
+        $categories = Category::withCount('posts')->orderBy('name')->get();
 
         return view('posts.index', compact('pinnedPosts', 'categories'));
     }

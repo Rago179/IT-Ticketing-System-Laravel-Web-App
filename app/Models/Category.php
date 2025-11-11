@@ -11,7 +11,7 @@ class Category extends Model
 
     protected $fillable = ['name'];
 
-    // ADD THIS RELATIONSHIP
+    // THIS IS THE NEW RELATIONSHIP
     public function posts()
     {
         return $this->belongsToMany(Post::class);

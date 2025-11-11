@@ -21,7 +21,7 @@ class Post extends Model
         'status',
         'priority',
         'assigned_to_user_id',
-        'is_pinned', // <-- ADDED THIS
+        'is_pinned', // <-- THIS IS THE NEW LINE
     ];
 
     public function user()
@@ -39,7 +39,7 @@ class Post extends Model
         return $this->belongsTo(User::class, 'assigned_to_user_id');
     }
 
-    // ADD THIS RELATIONSHIP
+    // THIS IS THE NEW RELATIONSHIP
     public function categories()
     {
         return $this->belongsToMany(Category::class);
