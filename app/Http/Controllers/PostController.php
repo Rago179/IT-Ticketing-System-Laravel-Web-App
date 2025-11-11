@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Category; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,12 +13,25 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Change get() to paginate(10)
-        $posts = Post::with('user')->latest()->paginate(10);
-        
-        return view('posts.index', compact('posts'));
+        // 1. Fetch all categories for the filter dropdown
+        $categories = Category::all();
+
+        // 2. Start the query
+        $query = Post::with(['user', 'categories'])->latest();
+
+        // 3. Apply Category Filter if present in URL (e.g., ?category=2)
+        if ($request->filled('category')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.id', $request->category);
+            });
+        }
+
+        // 4. Paginate
+        $posts = $query->paginate(10)->withQueryString();
+
+        return view('posts.index', compact('posts', 'categories'));
     }
 
     /**

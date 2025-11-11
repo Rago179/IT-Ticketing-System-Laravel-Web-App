@@ -106,7 +106,26 @@
                 </form>
             </div>
         </div>
+          <div style="margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+            <strong style="color: #555;">Filter by:</strong>
+            
+            <form method="GET" action="{{ route('posts.index') }}" style="margin: 0;">
+                <select name="category" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
 
+            @if(request()->filled('category'))
+                <a href="{{ route('posts.index') }}" style="text-decoration: none; color: #dc2626; font-size: 0.9em;">
+                    &times; Clear Filter
+                </a>
+            @endif
+        </div>
         <div class="posts-list">
             @forelse ($posts as $post)
                 <div class="post-item">
