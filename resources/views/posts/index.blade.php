@@ -20,9 +20,9 @@
             color: white; /* Set text color to white for all badges */
         }
 
-        .status-open { background-color: #16a34a; } /* Solid Green */
-        .status-ongoing { background-color: #ea580c; } /* Solid Orange */
-        .status-resolved { background-color: #dc2626; } /* Solid Red */
+        .status-open { background-color: #3479f8ff; } /* Solid Green */
+        .status-ongoing { background-color: #fc7f3cff; } /* Solid Orange */
+        .status-resolved { background-color: #00a344ff; } /* Solid Red */
         
         .post-title { margin: 0 0 10px 0; }
         .post-title a { text-decoration: none; color: #3490dc; }
