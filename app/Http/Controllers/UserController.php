@@ -61,4 +61,37 @@ class UserController extends Controller
         $status = $user->is_blocked ? 'blocked' : 'unblocked';
         return back()->with('success', "User has been {$status}.");
     }
+
+    public function index()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Fetch users, paginated, usually helpful to sort by ID or name
+        $users = User::orderBy('id')->paginate(15);
+
+        return view('users.index', compact('users'));
+    }
+
+    // NEW: Update User Role
+    public function updateRole(Request $request, User $user)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Prevent Admin from changing their own role to something else (lockout protection)
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'You cannot change your own role.');
+        }
+
+        $request->validate([
+            'role' => 'required|in:user,it,admin',
+        ]);
+
+        $user->update(['role' => $request->role]);
+
+        return back()->with('success', "User role updated to {$request->role}.");
+    }
 }

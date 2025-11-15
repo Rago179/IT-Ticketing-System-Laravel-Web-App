@@ -83,6 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/posts/{post}/pin', [PostController::class, 'pin'])->name('posts.pin');
     Route::get('/it-dashboard', [PostController::class, 'itDashboard'])->name('it.dashboard');
     Route::patch('/posts/{post}/assign', [PostController::class, 'assign'])->name('posts.assign');
+
+    Route::get('/admin/users', [UserController::class, 'index'])->name('users.index');
+    Route::patch('/admin/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
 });
 
 Route::post('logout', function (Request $request) {

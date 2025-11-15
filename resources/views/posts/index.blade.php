@@ -275,25 +275,20 @@ setTimeout(closeAlert, 3000);
 <h1>Dashboard</h1>
 
 <div class="header-controls">
+    <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}">{{ Auth::user()->name }}</a></span>
 
-<span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}">{{ Auth::user()->name }}</a></span>
+    {{-- NEW: Users Management Button (Admin Only) --}}
+    @if(Auth::user()->role === 'admin')
+        <a href="{{ route('users.index') }}" class="create-btn" style="background-color: #4f46e5;">Manage Users</a>
+    @endif
 
-@if(in_array(Auth::user()->role, ['it', 'admin']))
+    @if(in_array(Auth::user()->role, ['it', 'admin']))
+        <a href="{{ route('it.dashboard') }}" class="create-btn" style="background-color: #ea580c;">IT Dashboard</a>
+    @endif
 
-<a href="{{ route('it.dashboard') }}" class="create-btn" style="background-color: #ea580c;">IT Dashboard</a>
-
-@endif
-
-<a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
-
-<form method="POST" action="{{ route('logout') }}" style="display: inline;">
-
-@csrf
-
-<button type="submit" class="logout-btn">Log Out</button>
-
-</form>
-
+    <a href="{{ route('posts.create') }}" class="create-btn">Create New Post</a>
+    
+    {{-- ... Logout form ... --}}
 </div>
 
 </div>
