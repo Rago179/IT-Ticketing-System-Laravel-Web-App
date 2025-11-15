@@ -352,23 +352,30 @@ By {{ $post->user->name }} | {{ $post->created_at->diffForHumans() }}
 <h2 class="section-title"><span>📂</span> Browse by Category</h2>
 
 <div class="category-grid">
+    @forelse ($categories as $category)
+        <div style="position: relative;">
+            {{-- The Main Category Link --}}
+            <a href="{{ route('categories.show', $category) }}" class="category-box" style="height: 100%; box-sizing: border-box;">
+                <h3 class="category-box-title">{{ $category->name }}</h3>
+                <div class="category-box-count">{{ $category->posts_count }} {{ Str::plural('post', $category->posts_count) }}</div>
+            </a>
 
-@forelse ($categories as $category)
-
-<a href="{{ route('categories.show', $category) }}" class="category-box">
-
-<h3 class="category-box-title">{{ $category->name }}</h3>
-
-<div class="category-box-count">{{ $category->posts_count }} {{ Str::plural('post', $category->posts_count) }}</div>
-
-</a>
-
-@empty
-
-<p>No categories have been created yet.</p>
-
-@endforelse
-
+            {{-- Admin Delete Button --}}
+            @if(Auth::user()->role === 'admin' && $category->name !== 'Other')
+                <form action="{{ route('categories.destroy', $category) }}" method="POST" 
+                      onsubmit="return confirm('Are you sure? All posts in this category will be moved to \'Other\'.');"
+                      style="position: absolute; top: 10px; right: 10px;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" style="background: #fee2e2; color: #dc2626; border: 1px solid #ef4444; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold; line-height: 1; padding: 0;" title="Delete Category">
+                        &times;
+                    </button>
+                </form>
+            @endif
+        </div>
+    @empty
+        <p>No categories have been created yet.</p>
+    @endforelse
 </div>
 
 </div>

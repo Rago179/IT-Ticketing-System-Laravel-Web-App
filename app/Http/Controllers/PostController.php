@@ -15,19 +15,19 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
+        // 1. Fetch ALL pinned posts (Removed ->take(4))
         $pinnedPosts = Post::with(['user', 'categories'])
                             ->where('is_pinned', true)
-                            ->latest() // Sorting logic in Controller
-                            ->take(4)
+                            ->latest()
                             ->get();
 
+        // 2. Fetch ALL categories
         $categories = Category::withCount('posts')
-                            ->orderBy('name') // Sorting logic in Controller
+                            ->orderBy('name')
                             ->get();
 
         return view('posts.index', compact('pinnedPosts', 'categories'));
     }
-
     public function create()
     {
         // Logic: Fetch all categories so the view can just loop through them

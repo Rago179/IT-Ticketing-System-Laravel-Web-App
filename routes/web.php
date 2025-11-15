@@ -77,7 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    // --- Admin/IT Routes ---
+    // --- Admin/IT Routes ---c
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
     Route::patch('/posts/{post}/pin', [PostController::class, 'pin'])->name('posts.pin');
     Route::get('/it-dashboard', [PostController::class, 'itDashboard'])->name('it.dashboard');
