@@ -10,46 +10,39 @@ use Illuminate\Support\Facades\Auth;
 class PostController extends Controller
 {
     /**
-     * Display the new homepage (pinned posts & categories).
+     * Display the dashboard.
+     * LOGIC: Fetches Pinned posts (sorted by latest) and Categories (sorted by name).
      */
     public function index(Request $request)
     {
-        // 1. Fetch pinned posts
         $pinnedPosts = Post::with(['user', 'categories'])
                             ->where('is_pinned', true)
-                            ->latest()
-                            ->get(); // Limit removed as requested
+                            ->latest() // Sorting logic in Controller
+                            ->take(4)
+                            ->get();
 
-        // 2. Fetch categories, counting how many posts are in each
-        $categories = Category::withCount('posts')->orderBy('name')->get();
+        $categories = Category::withCount('posts')
+                            ->orderBy('name') // Sorting logic in Controller
+                            ->get();
 
         return view('posts.index', compact('pinnedPosts', 'categories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Pass categories to the create view
+        // Logic: Fetch all categories so the view can just loop through them
         $categories = Category::all();
         return view('posts.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'priority' => 'required|integer|between:1,4',
-            'categories' => 'nullable|array', // Validate categories
-            'categories.*' => 'integer|exists:categories,id' // Validate each item in array
-        ], [
-            'priority.integer' => 'Only numbers are allowed for priority.',
-            'priority.between' => 'Priority must be a number between 1 and 4.',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id'
         ]);
 
         $post = Post::create([
@@ -59,71 +52,57 @@ class PostController extends Controller
             'priority' => $request->priority,
         ]);
 
-        // Attach the selected categories
-        if ($request->filled('categories')) {
+        // LOGIC: Handle "Other" default if no category selected
+        // This logic belongs here, not in the view or a dirty database trigger.
+        if ($request->has('categories') && !empty($request->categories)) {
             $post->categories()->attach($request->categories);
         } else {
-            // Find the 'Other' category
+            // Find "Other" category
             $otherCategory = Category::where('name', 'Other')->first();
-
-        if ($otherCategory) {
-            $post->categories()->attach($otherCategory->id);
+            if ($otherCategory) {
+                $post->categories()->attach($otherCategory->id);
+            }
         }
+
+        return redirect()->route('home')->with('success', 'Post published successfully!');
     }
 
-    return redirect()->route('home')->with('success', 'Post published successfully!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Post $post)
     {
-        // Eager load existing relationships
         $post->load('categories', 'comments.user');
-
-        // ADD THIS LINE: Fetch all categories for the admin dropdown
+        
+        // LOGIC: We must fetch all categories here to pass to the 'Edit Categories' modal/form
+        // The View should not make calls like Category::all()
         $categories = Category::all();
 
-        // UPDATE THIS LINE: Add 'categories' to the compact function
         return view('posts.show', compact('post', 'categories'));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
+     * LOGIC: Handle the Admin/IT Category update.
      */
     public function update(Request $request, Post $post)
     {
-        // 1. Authorization: Only IT or Admin can update categories
+        // 1. Authorization Logic
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
             abort(403, 'Unauthorized Access');
         }
 
-        // 2. Validation
+        // 2. Validation Logic
         $request->validate([
             'categories' => 'required|array',
             'categories.*' => 'exists:categories,id',
         ]);
 
-        // 3. Sync categories (this replaces old categories with the new selection)
+        // 3. Business Logic: Sync categories (replaces old selection with new)
         $post->categories()->sync($request->categories);
 
         return back()->with('success', 'Post categories updated successfully.');
     }
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Post $post)
     {
-        // Allow post owner OR admin to delete
         if (Auth::id() !== $post->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
@@ -132,9 +111,6 @@ class PostController extends Controller
         return redirect()->route('home')->with('success', 'Post deleted.');
     }
 
-    /**
-     * Update the status of a post.
-     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -147,6 +123,7 @@ class PostController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // LOGIC: Prevent resolving without comments
         if ($request->status === 'resolved') {
             $hasCommented = $post->comments()
                                  ->where('user_id', Auth::id())
@@ -162,17 +139,12 @@ class PostController extends Controller
         return back()->with('success', 'Status updated!');
     }
 
-    /**
-     * Toggle the pinned status of a post (Admin Only).
-     */
     public function pin(Post $post)
     {
-        // 1. Authorize: Only 'admin' can pin
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized Access');
         }
 
-        // 2. Toggle the is_pinned status
         $post->update([
             'is_pinned' => !$post->is_pinned
         ]);
@@ -182,22 +154,21 @@ class PostController extends Controller
         return back()->with('success', $message);
     }
 
-    /**
-     * Display the IT dashboard.
-     */
     public function itDashboard(Request $request)
     {
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
-            // THIS IS THE LINE THAT WAS FIXED
             abort(403, 'Unauthorized Access');
         }
 
         $query = Post::with('user', 'assignedTo');
 
+        // LOGIC: Filtering based on Request
         if ($request->filled('assigned_to_me')) {
             $query->where('assigned_to_user_id', Auth::id());
         }
 
+        // LOGIC: Sorting based on Request
+        // This keeps the View clean. The view just sends ?sort=priority
         if ($request->get('sort') === 'priority') {
             $query->orderBy('priority', 'desc');
         } else {
@@ -209,9 +180,6 @@ class PostController extends Controller
         return view('it-dashboard', compact('posts'));
     }
 
-    /**
-     * Assign a ticket to the logged-in user.
-     */
     public function assign(Post $post)
     {
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
