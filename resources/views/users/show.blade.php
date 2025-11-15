@@ -73,6 +73,24 @@
                     </span>
                 </li>
             </ul>
+            @if(Auth::user()->role === 'admin' && Auth::id() !== $user->id)
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <form action="{{ route('users.block', $user) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    @if($user->is_blocked)
+                        <button type="submit" style="background: #16a34a; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">
+                            ✅ Unblock User
+                        </button>
+                        <span style="color: #dc2626; font-weight: bold; margin-left: 10px;">This user is currently blocked.</span>
+                    @else
+                        <button type="submit" style="background: #dc2626; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">
+                            🚫 Block User
+                        </button>
+                    @endif
+                </form>
+            </div>
+        @endif
         </div>
 
         <div class="user-activity" style="margin-top: 30px;">

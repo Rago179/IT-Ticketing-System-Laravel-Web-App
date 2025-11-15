@@ -9,6 +9,10 @@ class CommentController extends Controller
 {
     public function store(Request $request)
     {
+        // 1. Check if blocked
+    if (Auth::user()->is_blocked) {
+        return back()->with('error', 'Your account is blocked. You cannot comment.');
+    }
         $request->validate([
             'content' => 'required|string',
             'post_id' => 'required|exists:posts,id',

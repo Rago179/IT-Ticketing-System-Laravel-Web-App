@@ -244,8 +244,27 @@ setTimeout(() => alert.remove(), 500);
 setTimeout(closeAlert, 3000);
 
 </script>
-
 @endif
+
+{{--Error Notification --}}
+@if (session('error'))
+<div id="error-alert" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #fee2e2; color: #dc2626; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-width: 300px; font-weight: bold; border: 1px solid #ef4444;">
+    <span>🚫 {{ session('error') }}</span>
+    <button onclick="document.getElementById('error-alert').remove()" style="background: none; border: none; color: #dc2626; font-size: 20px; cursor: pointer; padding: 0 0 0 15px; line-height: 1;">&times;</button>
+</div>
+<script>
+    setTimeout(() => {
+        const alert = document.getElementById('error-alert');
+        if (alert) {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 500);
+        }
+    }, 4000); // Disappears after 4 seconds
+</script>
+@endif
+
+<div class="container">
 
 
 

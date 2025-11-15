@@ -73,6 +73,21 @@
     </style>
 </head>
 <body>
+    {{--Global Alerts --}}
+    @if (session('success'))
+        <div id="post-success-alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #dcfce7; color: #166534; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-width: 300px; font-weight: bold;">
+            <span>{{ session('success') }}</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #15803d; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div id="post-error-alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #fee2e2; color: #dc2626; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-width: 300px; font-weight: bold; border: 1px solid #ef4444;">
+            <span>🚫 {{ session('error') }}</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #dc2626; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+    @endif
+
     <div class="container">
         <div class="header">
             <a href="{{ route('home') }}" class="header-title">{{ config('app.name', 'IT-Ticket-System') }}</a>
