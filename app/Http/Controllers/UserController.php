@@ -8,38 +8,57 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Display the specified user's profile.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\View\View
-     */
     public function show(User $user)
     {
-        // Eager load the profile, posts, and comments
-        $user->load('profile', 'posts', 'comments');
+        $user->load([
+            'profile',
+            'posts' => function ($query) {
+                $query->latest()->take(10);
+            },
+            'comments' => function ($query) {
+                $query->latest()->take(10)->with('post');
+            }
+        ]);
 
         return view('users.show', compact('user'));
     }
 
+    // NEW: Handle Profile Updates (Bio)
+    public function update(Request $request, User $user)
+    {
+        // 1. Authorization: Only the owner can edit
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // 2. Validation
+        $request->validate([
+            'bio' => 'nullable|string|max:1000',
+        ]);
+
+        // 3. Save to Profile
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            ['bio' => $request->bio]
+        );
+
+        return back()->with('success', 'Profile updated successfully!');
+    }
+
     public function toggleBlock(User $user)
     {
-        // 1. Authorization: Only Admin
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        // 2. Prevention: Admin cannot block themselves
         if ($user->id === Auth::id()) {
             return back()->with('error', 'You cannot block yourself.');
         }
 
-        // 3. Toggle status
         $user->is_blocked = !$user->is_blocked;
         $user->save();
 
         $status = $user->is_blocked ? 'blocked' : 'unblocked';
         return back()->with('success', "User has been {$status}.");
     }
-    
 }

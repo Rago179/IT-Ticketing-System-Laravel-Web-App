@@ -71,7 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // User Profiles
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-
+    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::patch('/users/{user}/block', [UserController::class, 'toggleBlock'])->name('users.block');
     // --- Category Routes ---
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
