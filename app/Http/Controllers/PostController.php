@@ -18,8 +18,7 @@ class PostController extends Controller
         $pinnedPosts = Post::with(['user', 'categories'])
                             ->where('is_pinned', true)
                             ->latest()
-                            ->take(4) // Get max 4 pinned posts
-                            ->get();
+                            ->get(); // Limit removed as requested
 
         // 2. Fetch categories, counting how many posts are in each
         $categories = Category::withCount('posts')->orderBy('name')->get();
@@ -61,11 +60,18 @@ class PostController extends Controller
         ]);
 
         // Attach the selected categories
-        if ($request->has('categories')) {
+        if ($request->filled('categories')) {
             $post->categories()->attach($request->categories);
-        }
+        } else {
+            // Find the 'Other' category
+            $otherCategory = Category::where('name', 'Other')->first();
 
-        return redirect()->route('home')->with('success', 'Post published successfully!');
+        if ($otherCategory) {
+            $post->categories()->attach($otherCategory->id);
+        }
+    }
+
+    return redirect()->route('home')->with('success', 'Post published successfully!');
     }
 
     /**
@@ -73,9 +79,14 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        // Eager load categories and comments
+        // Eager load existing relationships
         $post->load('categories', 'comments.user');
-        return view('posts.show', compact('post'));
+
+        // ADD THIS LINE: Fetch all categories for the admin dropdown
+        $categories = Category::all();
+
+        // UPDATE THIS LINE: Add 'categories' to the compact function
+        return view('posts.show', compact('post', 'categories'));
     }
 
     /**
@@ -91,14 +102,28 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
-    }
+        // 1. Authorization: Only IT or Admin can update categories
+        if (!in_array(Auth::user()->role, ['it', 'admin'])) {
+            abort(403, 'Unauthorized Access');
+        }
 
+        // 2. Validation
+        $request->validate([
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+        ]);
+
+        // 3. Sync categories (this replaces old categories with the new selection)
+        $post->categories()->sync($request->categories);
+
+        return back()->with('success', 'Post categories updated successfully.');
+    }
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Post $post)
     {
+        // Allow post owner OR admin to delete
         if (Auth::id() !== $post->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
@@ -163,6 +188,7 @@ class PostController extends Controller
     public function itDashboard(Request $request)
     {
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
+            // THIS IS THE LINE THAT WAS FIXED
             abort(403, 'Unauthorized Access');
         }
 

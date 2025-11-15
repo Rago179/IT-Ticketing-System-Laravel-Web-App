@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- Category Routes ---
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // --- Admin/IT Routes ---
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');

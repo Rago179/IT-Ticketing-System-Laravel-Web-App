@@ -71,6 +71,33 @@
         <h1 class="post-title">{{ $post->title }}</h1>
 
         {{-- START: Admin/IT Controls --}}
+        {{-- Status Update Form --}}
+                <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST" style="margin-bottom: 15px;">
+                     {{-- ... existing status form code ... --}}
+                </form>
+
+                {{-- NEW: Category Update Form --}}
+                <form action="{{ route('posts.update', $post->id) }}" method="POST" style="margin-bottom: 15px;">
+                    @csrf
+                    @method('PUT')
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <label for="categories">Update Categories:</label>
+                        <select name="categories[]" id="categories" multiple style="padding: 5px; margin-right: 10px; height: 40px;">
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" 
+                                    @if($post->categories->contains($category->id)) selected @endif>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" style="background: #3490dc;">Save</button>
+                    </div>
+                </form>
+
+                {{-- Pin Post Form (Admin Only) --}}
+                @if(Auth::user()->role === 'admin')
+                     {{-- ... existing pin form code ... --}}
+                @endif
         @if(in_array(Auth::user()->role, ['admin', 'it']))
             <div class="admin-controls">
                 <h3>IT/Admin Controls</h3>

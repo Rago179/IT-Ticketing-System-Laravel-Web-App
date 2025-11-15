@@ -16,5 +16,7 @@ class CategorySeeder extends Seeder
         Category::create(['id' => 2, 'name' => 'Hardware Request']);
         Category::create(['id' => 3, 'name' => 'Network Issue']);
         Category::create(['id' => 4, 'name' => 'Account Management']);
+        // Add this new line
+        Category::create(['id' => 5, 'name' => 'Other']);
     }
 }
