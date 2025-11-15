@@ -34,6 +34,10 @@
         .status-form select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.9em; }
         .assign-btn { background: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .assign-btn:hover { background: #15803d; }
+
+        /* NEW: Delete Button Style */
+        .delete-btn { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
+        .delete-btn:hover { background: #dc2626; }
         
         .pagination-wrapper { margin-top: 30px; }
         .pagination-wrapper nav > div:first-child { display: none; }
@@ -59,7 +63,6 @@
             </div>
         </div>
 
-        <!-- Filter/Sort Bar -->
         <div class="filter-bar">
             <span>View:</span>
             <a href="{{ route('it.dashboard') }}" 
@@ -82,7 +85,6 @@
             </a>
         </div>
 
-        <!-- Session Success Message -->
         @if (session('success'))
             <div style="padding: 15px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px;">
                 {{ session('success') }}
@@ -92,13 +94,27 @@
         <div class="posts-list">
             @forelse ($posts as $post)
                 <div class="post-item">
-                    <h2 class="post-title">
-                        <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
-                    </h2>
+                    {{-- MODIFIED: Flex container to hold Title and Delete Button --}}
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <h2 class="post-title">
+                            <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
+                        </h2>
+
+                        {{-- NEW: Delete Button (Admin Only) --}}
+                        @if(Auth::user()->role === 'admin')
+                            <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        @endif
+                    </div>
                     
                     <div class="post-meta">
                         <span style="color: #333; font-weight: bold;">Priority: {{ $post->priority }}/4</span>
                         | Submitted by: <a href="{{ route('users.show', $post->user) }}">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
+                        {{-- NEW: Comment Count --}}
+                        | 💬 {{ $post->comments_count ?? $post->comments->count() }} Comments
                         <br>
                         <strong>
                             Assigned to: 
@@ -113,7 +129,6 @@
                     <p>{{ Str::limit($post->description, 150) }}</p>
 
                     <div class="post-actions">
-                        <!-- STATUS CHANGE FORM -->
                         <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST" class="status-form">
                             @csrf
                             @method('PATCH')
@@ -125,7 +140,6 @@
                             </select>
                         </form>
 
-                        <!-- ASSIGN TO ME BUTTON -->
                         @if(!$post->assignedTo)
                             <form action="{{ route('posts.assign', $post) }}" method="POST">
                                 @csrf
@@ -142,7 +156,6 @@
             @endforelse
         </div>
 
-        <!-- PAGINATION LINKS -->
         <div class="pagination-wrapper">
             {{ $posts->links() }}
         </div>

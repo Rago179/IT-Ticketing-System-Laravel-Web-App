@@ -102,14 +102,17 @@ class PostController extends Controller
     }
 
     public function destroy(Post $post)
-    {
-        if (Auth::id() !== $post->user_id && Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
+        {
+            // 1. Check: User is Owner OR User is Admin
+            if (Auth::id() !== $post->user_id && Auth::user()->role !== 'admin') {
+                abort(403, 'Unauthorized');
+            }
+            
+            $post->delete();
+            
+            // Changed to back() so if you delete from dashboard, you stay on dashboard
+            return back()->with('success', 'Post deleted.');
         }
-        
-        $post->delete();
-        return redirect()->route('home')->with('success', 'Post deleted.');
-    }
 
     public function updateStatus(Request $request, $id)
     {
@@ -160,7 +163,7 @@ class PostController extends Controller
             abort(403, 'Unauthorized Access');
         }
 
-        $query = Post::with('user', 'assignedTo');
+        $query = Post::with('user', 'assignedTo')->withCount('comments');
 
         // LOGIC: Filtering based on Request
         if ($request->filled('assigned_to_me')) {
