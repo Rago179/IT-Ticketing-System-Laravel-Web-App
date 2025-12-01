@@ -18,7 +18,7 @@
         .back-link { text-decoration: none; color: #3490dc; display: inline-block; margin-bottom: 20px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], textarea, select {
+        input[type="text"], input[type="number"], textarea, select, input[type="file"] {
             width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
         }
         textarea { min-height: 120px; }
@@ -65,7 +65,8 @@
         
         <h1>Create a New Post</h1>
 
-        <form method="POST" action="{{ route('posts.store') }}">
+        {{-- Added enctype for file upload support --}}
+        <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
             @csrf
             
             <div class="form-group">
@@ -78,6 +79,13 @@
                 <label for="description">Description</label>
                 <textarea id="description" name="description" required>{{ old('description') }}</textarea>
                 @error('description') <div class="error">{{ $message }}</div> @enderror
+            </div>
+
+            {{-- New Image Upload Field --}}
+            <div class="form-group">
+                <label for="image">Attach Image (Optional)</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                @error('image') <div class="error">{{ $message }}</div> @enderror
             </div>
 
             <div class="form-group">

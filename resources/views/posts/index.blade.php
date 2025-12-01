@@ -8,7 +8,6 @@
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
-        /* --- NEW HEADER STYLES --- */
         .top-nav {
             display: flex;
             justify-content: space-between;
@@ -29,7 +28,6 @@
         }
         .logout-btn:hover { color: #ef4444; }
 
-        /* Action Bar (Buttons) */
         .action-bar {
             display: flex;
             gap: 10px;

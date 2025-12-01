@@ -21,7 +21,8 @@ class Post extends Model
         'status',
         'priority',
         'assigned_to_user_id',
-        'is_pinned', // <-- THIS IS THE NEW LINE
+        'is_pinned',
+        'image_path', 
     ];
 
     public function user()

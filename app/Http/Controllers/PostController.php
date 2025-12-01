@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-    // ... [Keep index method] ...
     public function index(Request $request)
     {
-        // ... (your existing index code)
         $pinnedPosts = Post::with(['user', 'categories'])
                             ->where('is_pinned', true)
                             ->latest()
@@ -22,26 +20,34 @@ class PostController extends Controller
                             ->orderBy('name')
                             ->get();
 
-        return view('posts.index', compact('pinnedPosts', 'categories'));
+        // Standard posts (excluding pinned ones if you prefer, or keep all)
+        $query = Post::with(['user', 'categories'])->latest();
+        
+        if ($request->has('category')) {
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('id', $request->category);
+            });
+        }
+
+        $posts = $query->paginate(10);
+
+        return view('posts.index', compact('pinnedPosts', 'categories', 'posts'));
     }
 
     public function create()
     {
-        // NEW: Check if user is blocked before showing the form
         if (Auth::user()->is_blocked) {
             return redirect()->route('home')->with('error', 'Your account is restricted. You cannot create new posts.');
         }
 
-        // Logic: Fetch all categories so the view can just loop through them
         $categories = Category::all();
         return view('posts.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
-        // Double-check: Block submission as well (security best practice)
         if (Auth::user()->is_blocked) {
-            return redirect()->route('home')->with('error', 'Your account is restricted. You cannot create new posts.');
+            return redirect()->route('home')->with('error', 'Your account is restricted.');
         }
 
         $request->validate([
@@ -49,14 +55,22 @@ class PostController extends Controller
             'description' => 'required|string',
             'priority' => 'required|integer|between:1,4',
             'categories' => 'nullable|array',
-            'categories.*' => 'exists:categories,id'
+            'categories.*' => 'exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate Image
         ]);
+
+        // Handle Image Upload
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('posts', 'public');
+        }
 
         $post = Post::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
             'priority' => $request->priority,
+            'image_path' => $imagePath, // Save Path
         ]);
 
         if ($request->has('categories') && !empty($request->categories)) {
@@ -71,7 +85,6 @@ class PostController extends Controller
         return redirect()->route('home')->with('success', 'Post published successfully!');
     }
 
-    // ... [The rest of your controller (show, update, destroy, etc.) remains exactly the same] ...
     public function show(Post $post)
     {
         $post->load('categories', 'comments.user');

@@ -6,18 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
-    public function up(): void
+    public function up()
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->boolean('is_pinned')->default(false)->after('status');
+            $table->string('image_path')->nullable()->after('description');
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('is_pinned');
+            $table->dropColumn('image_path');
         });
     }
 };
