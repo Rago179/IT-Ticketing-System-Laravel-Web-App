@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -222,19 +223,38 @@ class PostController extends Controller
 
         $posts = $query->paginate(10)->withQueryString();
 
-        return view('it-dashboard', compact('posts'));
+        // [2] Fetch IT Staff for the dropdown
+        $itStaff = User::whereIn('role', ['it', 'admin'])->orderBy('name')->get();
+
+        return view('it-dashboard', compact('posts', 'itStaff'));
     }
 
-    public function assign(Post $post)
+    public function assign(Request $request, Post $post) 
     {
         if (!in_array(Auth::user()->role, ['it', 'admin'])) {
             abort(403, 'Unauthorized Access');
         }
 
-        $post->assigned_to_user_id = Auth::id();
-        $post->status = 'in_progress';
+        if (Auth::user()->role === 'admin' && $request->has('assigned_user_id')) {
+            $request->validate([
+                'assigned_user_id' => 'exists:users,id'
+            ]);
+            
+            $post->assigned_to_user_id = $request->assigned_user_id;
+            $targetUser = User::find($request->assigned_user_id);
+            $message = "Ticket assigned to " . $targetUser->name;
+        } else {
+            $post->assigned_to_user_id = Auth::id();
+            $message = 'Ticket assigned to you.';
+        }
+
+        
+        if ($post->status === 'open') {
+            $post->status = 'in_progress';
+        }
+        
         $post->save();
 
-        return back()->with('success', 'Ticket assigned to you.');
+        return back()->with('success', $message);
     }
 }

@@ -117,28 +117,55 @@
                             @csrf
                             @method('PATCH')
                             <label for="status-{{ $post->id }}" class="font-bold text-slate-600">Status:</label>
+                            {{-- UPDATED: Added appearance-none, pr-8, and custom SVG background --}}
                             <select name="status" id="status-{{ $post->id }}" onchange="this.form.submit()" 
-                                    class="p-1.5 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer">
+                                    class="appearance-none py-1.5 pl-3 pr-8 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E')] bg-[length:1.25em_1.25em] bg-no-repeat bg-[right_0.5rem_center]">
                                 <option value="open" @if($post->status == 'open') selected @endif>Open</option>
                                 <option value="in_progress" @if($post->status == 'in_progress') selected @endif>In Progress</option>
                                 <option value="resolved" @if($post->status == 'resolved') selected @endif>Resolved</option>
                             </select>
                         </form>
 
-                        @if(!$post->assignedTo)
-                            <form action="{{ route('posts.assign', $post) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-700 transition-colors cursor-pointer border-none">
-                                    Assign to Me
-                                </button>
-                            </form>
-                        @elseif($post->assigned_to_user_id === Auth::id())
-                            <span class="text-green-600 font-bold text-sm flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Assigned to You
-                            </span>
-                        @endif
+                        {{-- Assignment Controls --}}
+                        <div class="flex items-center gap-2">
+                            @if(Auth::user()->role === 'admin')
+                                {{-- ADMIN: Dropdown to assign to anyone --}}
+                                <form action="{{ route('posts.assign', $post) }}" method="POST" class="flex items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    {{-- UPDATED: Added appearance-none, pr-8, and custom SVG background --}}
+                                    <select name="assigned_user_id" class="appearance-none py-1.5 pl-3 pr-8 border border-gray-300 rounded text-xs focus:ring-sky-500 focus:border-sky-500 max-w-[150px] bg-white cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E')] bg-[length:1.25em_1.25em] bg-no-repeat bg-[right_0.5rem_center]">
+                                        <option value="{{ Auth::id() }}">Assign to Me</option>
+                                        @foreach($itStaff as $staff)
+                                            @if($staff->id !== Auth::id())
+                                                <option value="{{ $staff->id }}" {{ $post->assigned_to_user_id == $staff->id ? 'selected' : '' }}>
+                                                    {{ $staff->name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-indigo-700 transition-colors cursor-pointer border-none">
+                                        Update
+                                    </button>
+                                </form>
+
+                            @elseif(!$post->assignedTo)
+                                {{-- IT STAFF: Assign to self only --}}
+                                <form action="{{ route('posts.assign', $post) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-700 transition-colors cursor-pointer border-none">
+                                        Assign to Me
+                                    </button>
+                                </form>
+
+                            @elseif($post->assigned_to_user_id === Auth::id())
+                                <span class="text-green-600 font-bold text-sm flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Assigned to You
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @empty
