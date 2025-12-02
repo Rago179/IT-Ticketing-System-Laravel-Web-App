@@ -259,7 +259,21 @@
     </div>
 
     {{-- AJAX Script --}}
-    <script>
+<script>
+    // Toggle Function (Keep this outside the event listener)
+    function toggleEdit(commentId) {
+        const body = document.getElementById(`comment-body-${commentId}`);
+        const form = document.getElementById(`edit-form-${commentId}`);
+        
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            body.style.display = 'none';
+        } else {
+            form.style.display = 'none';
+            body.style.display = 'block';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const commentForm = document.getElementById('comment-form');
 
@@ -273,11 +287,11 @@
                 const noCommentsMsg = document.getElementById('no-comments-msg');
                 const commentsContainer = document.getElementById('comments-container');
                 const countSpan = document.getElementById('comment-count');
-
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'Posting...';
                 errorDiv.style.display = 'none';
-                errorDiv.innerText = '';
 
                 const formData = new FormData(form);
 
@@ -286,32 +300,42 @@
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: formData
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => Promise.reject(data));
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if(data.success) {
-                        const comment = data.comment;
-                        
+                        const c = data.comment;
                         if(noCommentsMsg) noCommentsMsg.remove();
 
                         const commentHtml = `
-                            <div class="comment" id="comment-${comment.id}" style="background-color: #f0fdf4; transition: background 1s;">
+                            <div class="comment" id="comment-${c.id}" style="background-color: #f0fdf4; border-left: 5px solid #22c55e;">
                                 <div class="comment-header">
-                                    <span><a href="${comment.user_url}">${comment.user_name}</a></span>
+                                    <span><a href="${c.user_url}">${c.user_name}</a></span>
                                     <span class="comment-date">Just now</span>
                                 </div>
-                                <div class="comment-body">${comment.content}</div>
-                                <div style="text-align: right; margin-top: 10px;">
-                                    <form method="POST" action="${comment.delete_url}">
-                                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+
+                                <div class="comment-body" id="comment-body-${c.id}">
+                                    ${c.content}
+                                </div>
+
+                                <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" style="display: none; margin-top: 10px;">
+                                    <input type="hidden" name="_token" value="${csrfToken}">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <textarea name="content" style="width: 100%; height: 80px;">${c.raw_content}</textarea>
+                                    <div style="margin-top: 5px;">
+                                        <button type="submit" style="background: #3490dc; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
+                                        <button type="button" onclick="toggleEdit(${c.id})" style="background: #ccc; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                                    </div>
+                                </form>
+
+                                <div style="text-align: right; margin-top: 10px; font-size: 0.85em;">
+                                    <button onclick="toggleEdit(${c.id})" style="background: none; border: none; color: #f59e0b; cursor: pointer; text-decoration: underline; margin-right: 10px;">Edit</button>
+                                    
+                                    <form method="POST" action="${c.delete_url}" style="display: inline;">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="delete-btn">Delete</button>
                                     </form>
@@ -320,23 +344,13 @@
                         `;
 
                         commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
-                        
                         if(countSpan) countSpan.innerText = data.count;
-
                         form.reset();
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    let msg = 'Something went wrong.';
-                    
-                    if (error.errors && error.errors.content) {
-                        msg = error.errors.content[0];
-                    } else if (error.message) {
-                        msg = error.message; 
-                    }
-                    
-                    errorDiv.innerText = msg;
+                    errorDiv.innerText = "Error posting comment.";
                     errorDiv.style.display = 'block';
                 })
                 .finally(() => {
