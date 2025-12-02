@@ -4,53 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome - {{ config('app.name', 'IT Ticket System') }}</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f4f4f4; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
-        h1 { color: #3490dc; margin-top: 0; font-size: 2.5em; }
-        p.description { color: #555; line-height: 1.6; margin-bottom: 30px; font-size: 1.1em; }
-        .user-types { text-align: left; margin: 30px 0; background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3490dc; }
-        .user-types h3 { color: #333; margin-top: 0; margin-bottom: 15px; }
-        .user-types ul { padding-left: 20px; margin: 0; }
-        .user-types li { margin-bottom: 10px; line-height: 1.4; color: #444; }
-        .user-types strong { color: #2779bd; }
-        .auth-links { display: flex; justify-content: center; gap: 20px; margin-top: 40px; }
-        .btn { display: inline-block; padding: 12px 30px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.2s; }
-        .btn-login { background: #3490dc; color: white; }
-        .btn-login:hover { background: #2779bd; }
-        .btn-register { background: #e2e8f0; color: #333; }
-        .btn-register:hover { background: #cbd5e0; }
-        .btn-dashboard { background: #16a34a; color: white; }
-        .btn-dashboard:hover { background: #15803d; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        <h1>IT-Ticket-System</h1>
+<body class="font-sans flex justify-center items-center min-h-screen bg-gray-100 p-5 box-border">
+
+    <div class="bg-white p-10 rounded-lg shadow-md w-full max-w-[600px] text-center">
+        <h1 class="text-sky-600 mt-0 text-4xl font-bold mb-4">IT-Ticket-System</h1>
         
-        <p class="description">
+        <p class="text-gray-600 leading-relaxed mb-8 text-lg">
             Welcome to our internal support platform. This application allows users to submit, track, and manage IT support tickets efficiently. Get help with your technical issues or manage requests all in one place.
         </p>
 
-        <div class="user-types">
-            <h3>Who is this for?</h3>
-            <ul>
-                <li><strong>Standard Users:</strong> Create new support tickets, view your ticket history, and communicate with support staff via comments.</li>
-                <li><strong>IT Staff:</strong> View all incoming tickets, assign them to yourself, update statuses, and resolve technical issues.</li>
-                <li><strong>Administrators:</strong> Full system oversight with capabilities to manage users, categories, and advanced settings.</li>
+        <div class="text-left my-8 bg-slate-50 p-6 rounded-lg border-l-4 border-sky-600">
+            <h3 class="text-gray-800 mt-0 mb-4 font-bold text-lg">Who is this for?</h3>
+            <ul class="pl-5 list-disc m-0">
+                <li class="mb-2 leading-snug text-gray-700">
+                    <strong class="text-sky-700">Standard Users:</strong> Create new support tickets, view your ticket history, and communicate with support staff via comments.
+                </li>
+                <li class="mb-2 leading-snug text-gray-700">
+                    <strong class="text-sky-700">IT Staff:</strong> View all incoming tickets, assign them to yourself, update statuses, and resolve technical issues.
+                </li>
+                <li class="mb-2 leading-snug text-gray-700">
+                    <strong class="text-sky-700">Administrators:</strong> Full system oversight with capabilities to manage users, categories, and advanced settings.
+                </li>
             </ul>
         </div>
 
-        <div class="auth-links">
+        <div class="flex justify-center gap-5 mt-10">
             @auth
-                <a href="{{ route('home') }}" class="btn btn-dashboard">Go to Dashboard</a>
+                <a href="{{ route('home') }}" class="inline-block px-8 py-3 rounded-md font-bold text-base bg-green-600 text-white hover:bg-green-700 transition-colors no-underline shadow-sm">
+                    Go to Dashboard
+                </a>
             @else
-                <a href="{{ route('login') }}" class="btn btn-login">Log In</a>
+                <a href="{{ route('login') }}" class="inline-block px-8 py-3 rounded-md font-bold text-base bg-sky-600 text-white hover:bg-sky-700 transition-colors no-underline shadow-sm">
+                    Log In
+                </a>
                 @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="btn btn-register">Register</a>
+                    <a href="{{ route('register') }}" class="inline-block px-8 py-3 rounded-md font-bold text-base bg-slate-200 text-slate-800 hover:bg-slate-300 transition-colors no-underline shadow-sm">
+                        Register
+                    </a>
                 @endif
             @endauth
         </div>
     </div>
+
 </body>
 </html>

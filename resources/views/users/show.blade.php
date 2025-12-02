@@ -4,150 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $user->name }}'s Profile</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;}
-        .header-title { font-size: 1.5em; font-weight: bold; margin: 0; text-decoration: none; color: #333; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .user-info { font-weight: bold; color: #333; }
-        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
-        .back-link { text-decoration: none; color: #3490dc; display: inline-block; margin-bottom: 20px; }
-        
-        /* Profile Styles */
-        .profile-card { background: #f1f5f9; border-radius: 8px; padding: 25px; }
-        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #3490dc; color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5em; font-weight: bold; }
-        .profile-details { flex-grow: 1; }
-        .profile-name { font-size: 2em; margin: 0; }
-        .profile-role { display: inline-block; background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; text-transform: capitalize; margin-top: 5px; }
-        .profile-info { list-style: none; padding: 0; }
-        .profile-info li { padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
-        .profile-info li:last-child { border-bottom: none; }
-        .profile-info strong { color: #333; width: 100px; display: inline-block; }
-
-        /* Form Styles (Consistent with other views) */
-        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; min-height: 100px; margin-bottom: 10px; box-sizing: border-box; font-family: sans-serif; }
-        .submit-btn { background: #3490dc; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
-        .submit-btn:hover { background: #2779bd; }
-        .cancel-btn { background: #94a3b8; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block; }
-        .cancel-btn:hover { background: #64748b; }
-        
-        .edit-btn { background: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; color: #333; font-weight: bold; }
-        .edit-btn:hover { background: #e2e8f0; }
-        
-        /* Utility */
-        .hidden { display: none; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
     {{-- Notifications --}}
     @if (session('success'))
-        <div style="background-color: #dcfce7; color: #166534; padding: 12px 24px; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            {{ session('success') }}
+        <div id="success-alert" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-green-100 text-green-800 px-6 py-3 rounded-lg shadow-md font-bold flex items-center gap-3">
+            <span>{{ session('success') }}</span>
         </div>
+        <script>setTimeout(() => document.getElementById('success-alert')?.remove(), 3000);</script>
     @endif
 
-    <div class="container">
-        <div class="header">
-            <a href="{{ route('home') }}" class="header-title">{{ config('app.name', 'IT-Ticket-System') }}</a>
-            <div class="header-controls">
-                <span class="user-info">Hi, {{ Auth::user()->name }}</span>
-                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+        
+        {{-- Header --}}
+        <div class="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
+            <a href="{{ route('home') }}" class="text-2xl font-bold text-slate-800 no-underline hover:text-sky-600">
+                {{ config('app.name', 'IT-Ticket-System') }}
+            </a>
+            <div class="flex items-center gap-4 text-sm font-bold text-slate-700">
+                <span>
+                    Hi, <span class="text-slate-900">{{ Auth::user()->name }}</span>
+                </span>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="logout-btn">Log Out</button>
+                    <button type="submit" class="text-slate-500 underline hover:text-red-600 cursor-pointer bg-transparent border-none">
+                        Log Out
+                    </button>
                 </form>
             </div>
         </div>
 
-        {{-- CHANGED: Use specific route instead of url()->previous() to avoid loops --}}
-        <a href="{{ route('home') }}" class="back-link">&larr; Back to Dashboard</a>
+        <a href="{{ route('home') }}" class="inline-block mb-5 text-sky-600 font-bold hover:underline">
+            &larr; Back to Dashboard
+        </a>
 
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-avatar">
+        {{-- Profile Card --}}
+        <div class="bg-slate-50 rounded-lg p-6 mb-8">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-20 h-20 rounded-full bg-sky-600 text-white flex items-center justify-center text-3xl font-bold shrink-0">
                     {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
-                <div class="profile-details">
-                    <h1 class="profile-name">{{ $user->name }}</h1>
-                    <span class="profile-role">{{ $user->role }}</span>
+                <div class="flex-grow">
+                    <h1 class="text-3xl font-bold text-slate-800 m-0 leading-tight">{{ $user->name }}</h1>
+                    <span class="inline-block bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs font-bold capitalize mt-2">
+                        {{ $user->role }}
+                    </span>
                 </div>
                 
                 {{-- Edit Button (Only for Owner) --}}
                 @if(Auth::id() === $user->id)
-                    <button onclick="toggleEdit()" class="edit-btn" id="editButton">✎ Edit Profile</button>
+                    <button onclick="toggleEdit()" id="editButton" class="bg-white border border-gray-300 text-slate-700 px-3 py-1.5 rounded text-sm font-bold hover:bg-gray-50 cursor-pointer shadow-sm">
+                        ✎ Edit Profile
+                    </button>
                 @endif
             </div>
             
-            <ul class="profile-info">
-                <li><strong>Email</strong> {{ $user->email }}</li>
-                <li><strong>Joined</strong> {{ $user->created_at->format('M d, Y') }}</li>
+            <ul class="list-none p-0 m-0">
+                <li class="py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center">
+                    <strong class="text-slate-800 w-24 shrink-0">Email</strong> 
+                    <span class="text-slate-600">{{ $user->email }}</span>
+                </li>
+                <li class="py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center">
+                    <strong class="text-slate-800 w-24 shrink-0">Joined</strong> 
+                    <span class="text-slate-600">{{ $user->created_at->format('M d, Y') }}</span>
+                </li>
                 
                 {{-- Bio Section: View Mode --}}
-                <li id="bio-display">
-                    <strong style="vertical-align: top;">Bio</strong>
-                    <span style="display: inline-block; max-width: 80%; white-space: pre-wrap;">{{ $user->profile->bio ?? 'This user has not set up a bio.' }}</span>
+                <li id="bio-display" class="py-3 border-b border-gray-200 sm:flex">
+                    <strong class="text-slate-800 w-24 shrink-0 block mb-1 sm:mb-0">Bio</strong>
+                    <span class="block text-slate-600 whitespace-pre-wrap max-w-xl">{{ $user->profile->bio ?? 'This user has not set up a bio.' }}</span>
                 </li>
 
                 {{-- Bio Section: Edit Mode (Hidden by default) --}}
-                <li id="bio-edit-form" class="hidden">
-                    <strong style="vertical-align: top;">Bio</strong>
-                    <div style="display: inline-block; width: 80%;">
-                        <form action="{{ route('users.update', $user) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <textarea name="bio" placeholder="Tell us about yourself...">{{ $user->profile->bio ?? '' }}</textarea>
-                            <div style="margin-top: 5px;">
-                                <button type="submit" class="submit-btn">Save Changes</button>
-                                <button type="button" onclick="toggleEdit()" class="cancel-btn">Cancel</button>
-                            </div>
-                        </form>
+                <li id="bio-edit-form" class="hidden py-3 border-b border-gray-200">
+                    <div class="sm:flex">
+                        <strong class="text-slate-800 w-24 shrink-0 block mb-2 sm:mb-0 pt-2">Bio</strong>
+                        <div class="flex-grow max-w-xl">
+                            <form action="{{ route('users.update', $user) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <textarea name="bio" placeholder="Tell us about yourself..." 
+                                          class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-2">{{ $user->profile->bio ?? '' }}</textarea>
+                                <div class="flex gap-2">
+                                    <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-md font-bold text-sm hover:bg-sky-700 transition-colors">Save Changes</button>
+                                    <button type="button" onclick="toggleEdit()" class="bg-slate-400 text-white px-4 py-2 rounded-md font-bold text-sm hover:bg-slate-500 transition-colors">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </li>
             </ul>
 
             {{-- Admin Block Controls --}}
             @if(Auth::user()->role === 'admin' && Auth::id() !== $user->id)
-                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <div class="mt-6 pt-6 border-t border-gray-200">
                     <form action="{{ route('users.block', $user) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         @if($user->is_blocked)
-                            <button type="submit" style="background: #16a34a; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">✅ Unblock User</button>
-                            <span style="color: #dc2626; font-weight: bold; margin-left: 10px;">This user is currently blocked.</span>
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md font-bold text-sm hover:bg-green-700 cursor-pointer">✅ Unblock User</button>
+                            <span class="text-red-600 font-bold ml-3 text-sm">This user is currently blocked.</span>
                         @else
-                            <button type="submit" style="background: #dc2626; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">🚫 Block User</button>
+                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md font-bold text-sm hover:bg-red-700 cursor-pointer">🚫 Block User</button>
                         @endif
                     </form>
                 </div>
             @endif
         </div>
 
-        <div class="user-activity" style="margin-top: 30px;">
-            <h2 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">User Activity</h2>
-            <h3>Tickets Posted ({{ $user->posts->count() }})</h3>
-            @forelse($user->posts as $post)
-                <p><a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a> - <small>{{ $post->created_at->diffForHumans() }}</small></p>
-            @empty
-                <p>This user has not posted any tickets.</p>
-            @endforelse
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-slate-800 border-b border-gray-100 pb-3 mb-4">User Activity</h2>
             
-            <h3 style="margin-top: 25px;">Comments Posted ({{ $user->comments->count() }})</h3>
-            @forelse($user->comments as $comment)
-                <p style="padding-left: 15px; border-left: 3px solid #eee;">
-                    "{{ Str::limit($comment->content, 50) }}" 
-                    on 
-                    @if($comment->post)
-                        <a href="{{ route('posts.show', $comment->post) }}">{{ $comment->post->title }}</a>
-                    @else
-                        <em>Deleted Post</em>
-                    @endif
-                </p>
-            @empty
-                <p>This user has not posted any comments.</p>
-            @endforelse
+            <h3 class="text-lg font-bold text-slate-700 mb-2">Tickets Posted ({{ $user->posts->count() }})</h3>
+            <div class="mb-6">
+                @forelse($user->posts as $post)
+                    <p class="mb-2">
+                        <a href="{{ route('posts.show', $post) }}" class="text-sky-600 hover:underline font-medium">{{ $post->title }}</a> 
+                        <span class="text-slate-400 text-sm ml-1">- {{ $post->created_at->diffForHumans() }}</span>
+                    </p>
+                @empty
+                    <p class="text-slate-500 italic">This user has not posted any tickets.</p>
+                @endforelse
+            </div>
+            
+            <h3 class="text-lg font-bold text-slate-700 mb-2">Comments Posted ({{ $user->comments->count() }})</h3>
+            <div>
+                @forelse($user->comments as $comment)
+                    <div class="mb-3 pl-4 border-l-4 border-slate-100 py-1">
+                        <p class="text-slate-600 italic mb-1">"{{ Str::limit($comment->content, 60) }}"</p>
+                        <p class="text-xs text-slate-400">
+                            on 
+                            @if($comment->post)
+                                <a href="{{ route('posts.show', $comment->post) }}" class="text-sky-600 hover:underline">{{ $comment->post->title }}</a>
+                            @else
+                                <em class="text-red-400">Deleted Post</em>
+                            @endif
+                        </p>
+                    </div>
+                @empty
+                    <p class="text-slate-500 italic">This user has not posted any comments.</p>
+                @endforelse
+            </div>
         </div>
     </div>
 
@@ -158,14 +158,15 @@
             const form = document.getElementById('bio-edit-form');
             const btn = document.getElementById('editButton');
 
+            // Tailwind uses 'hidden' class which sets display: none
             if (form.classList.contains('hidden')) {
                 form.classList.remove('hidden');
                 display.classList.add('hidden');
-                btn.style.display = 'none'; // Hide edit button while editing
+                if(btn) btn.style.display = 'none'; 
             } else {
                 form.classList.add('hidden');
                 display.classList.remove('hidden');
-                btn.style.display = 'inline-block';
+                if(btn) btn.style.display = 'inline-block';
             }
         }
     </script>

@@ -4,32 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; margin: 0; }
-        .auth-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-top: 0; }
-        .description { font-size: 0.9em; color: #666; margin-bottom: 20px; line-height: 1.5; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #3490dc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background: #2779bd; }
-        .error { color: #e3342f; font-size: 0.875em; margin-top: 5px; }
-        .success { color: #16a34a; background: #dcfce7; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 0.9em; }
-        .back-link { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 0.9em; }
-        .back-link:hover { text-decoration: underline; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="auth-container">
-        <h2>Reset Password</h2>
+<body class="font-sans flex justify-center items-center min-h-screen bg-gray-100 p-5">
 
-        <div class="description">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-sm">
+        <h2 class="text-center text-2xl font-bold mb-6 text-slate-800">Reset Password</h2>
+
+        <div class="text-sm text-slate-600 mb-6 leading-relaxed">
             Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
         </div>
 
         @if (session('status'))
-            <div class="success">
+            <div class="text-green-700 bg-green-100 p-3 rounded-md mb-4 text-sm font-bold border border-green-200">
                 {{ session('status') }}
             </div>
         @endif
@@ -37,16 +25,22 @@
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
-                @error('email') <div class="error">{{ $message }}</div> @enderror
+            <div class="mb-5">
+                <label for="email" class="block mb-1 font-bold text-slate-700">Email</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                       class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 shadow-sm">
+                @error('email') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
 
-            <button type="submit">Email Password Reset Link</button>
+            <button type="submit" class="w-full py-3 bg-sky-600 text-white rounded-md font-bold text-base hover:bg-sky-700 transition-colors cursor-pointer border-none">
+                Email Password Reset Link
+            </button>
         </form>
 
-        <a href="{{ route('login') }}" class="back-link">&larr; Back to Login</a>
+        <a href="{{ route('login') }}" class="block text-center mt-6 text-slate-500 hover:text-slate-700 hover:underline text-sm no-underline transition-colors">
+            &larr; Back to Login
+        </a>
     </div>
+
 </body>
 </html>

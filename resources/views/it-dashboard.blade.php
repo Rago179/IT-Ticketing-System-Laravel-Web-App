@@ -4,136 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Dashboard</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .header h1 { margin: 0; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .user-info { font-weight: bold; color: #333; }
-        .create-btn { background: #3490dc; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
-        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
-        
-        .filter-bar { margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-bar a, .filter-bar button {
-            text-decoration: none; padding: 8px 12px; border-radius: 5px; background: white; border: 1px solid #ccc;
-            color: #333; font-weight: bold; cursor: pointer; font-size: 0.9em;
-        }
-        .filter-bar a:hover, .filter-bar button:hover { background: #e2e8f0; }
-
-        .post-item { padding: 20px; border-bottom: 1px solid #eee; position: relative; }
-        .post-item:last-child { border-bottom: none; }
-        .post-title { margin: 0 0 10px 0; }
-        .post-title a { text-decoration: none; color: #3490dc; }
-        .post-title a:hover { text-decoration: underline; }
-        .post-meta { color: #888; font-size: 0.9em; margin-bottom: 10px;}
-        .post-meta a { color: #3490dc; text-decoration: none; font-weight: bold; }
-        .post-meta a:hover { text-decoration: underline; }
-        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        
-        .status-form select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.9em; }
-        .assign-btn { background: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .assign-btn:hover { background: #15803d; }
-
-        /* NEW: Delete Button Style */
-        .delete-btn { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-        .delete-btn:hover { background: #dc2626; }
-        
-        .pagination-wrapper { margin-top: 30px; }
-        .pagination-wrapper nav > div:first-child { display: none; }
-        .pagination-wrapper nav > div:last-child { display: flex; justify-content: space-between; align-items: center; }
-        .pagination-wrapper span[aria-current="page"] > span { background-color: #3490dc; color: white; border-color: #3490dc; }
-        .pagination-wrapper a, .pagination-wrapper span {
-            display: inline-block; padding: 8px 12px; margin: 0 2px; border: 1px solid #ddd;
-            border-radius: 4px; text-decoration: none; color: #333; font-size: 0.9em;
-        }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>IT Dashboard</h1>
-            <div class="header-controls">
-                <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}" style="text-decoration:none; color: #3490dc;">{{ Auth::user()->name }}</a></span>
-                <a href="{{ route('home') }}" class="create-btn" style="background-color:#64748b;">All Posts</a>
-                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+        
+        {{-- Header --}}
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 m-0">IT Dashboard</h1>
+            <div class="flex items-center gap-4 text-sm font-bold text-slate-700">
+                <span>
+                    Hi, <a href="{{ route('users.show', Auth::user()) }}" class="text-sky-600 hover:underline">{{ Auth::user()->name }}</a>
+                </span>
+                <a href="{{ route('home') }}" class="bg-slate-500 text-white px-3 py-2 rounded-md text-sm font-bold no-underline hover:bg-slate-600 transition-colors">
+                    All Posts
+                </a>
+                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="logout-btn">Log Out</button>
+                    <button type="submit" class="text-slate-500 underline hover:text-red-600 cursor-pointer bg-transparent border-none">
+                        Log Out
+                    </button>
                 </form>
             </div>
         </div>
 
-        <div class="filter-bar">
-            <span>View:</span>
+        {{-- Filter Bar --}}
+        <div class="mb-6 p-4 bg-slate-100 rounded-lg flex flex-wrap gap-3 items-center text-sm">
+            <span class="font-bold text-slate-700 mr-1">View:</span>
+            
             <a href="{{ route('it.dashboard') }}" 
-               style="{{ !request()->filled('assigned_to_me') ? 'background-color: #3490dc; color: white;' : '' }}">
+               class="px-3 py-2 rounded-md border font-bold transition-colors no-underline
+               {{ !request()->filled('assigned_to_me') ? 'bg-sky-600 text-white border-transparent' : 'bg-white text-slate-700 border-gray-300 hover:bg-white' }}">
                All Tickets
             </a>
+            
             <a href="{{ request()->fullUrlWithQuery(['assigned_to_me' => 1]) }}"
-               style="{{ request()->filled('assigned_to_me') ? 'background-color: #3490dc; color: white;' : '' }}">
+               class="px-3 py-2 rounded-md border font-bold transition-colors no-underline
+               {{ request()->filled('assigned_to_me') ? 'bg-sky-600 text-white border-transparent' : 'bg-white text-slate-700 border-gray-300 hover:bg-white' }}">
                Assigned to Me
             </a>
             
-            <span style="margin-left: 20px;">Sort By:</span>
+            <span class="font-bold text-slate-700 ml-4 mr-1">Sort By:</span>
+            
             <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}"
-               style="{{ !request()->filled('sort') ? 'background-color: #64748b; color: white;' : '' }}">
+               class="px-3 py-2 rounded-md border font-bold transition-colors no-underline
+               {{ !request()->filled('sort') ? 'bg-slate-500 text-white border-transparent' : 'bg-white text-slate-700 border-gray-300 hover:bg-white' }}">
                Latest
             </a>
+            
             <a href="{{ request()->fullUrlWithQuery(['sort' => 'priority']) }}"
-               style="{{ request()->get('sort') === 'priority' ? 'background-color: #64748b; color: white;' : '' }}">
+               class="px-3 py-2 rounded-md border font-bold transition-colors no-underline
+               {{ request()->get('sort') === 'priority' ? 'bg-slate-500 text-white border-transparent' : 'bg-white text-slate-700 border-gray-300 hover:bg-white' }}">
                Priority
             </a>
         </div>
 
         @if (session('success'))
-            <div style="padding: 15px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px;">
+            <div class="bg-green-100 text-green-800 px-4 py-3 rounded-lg mb-6 border border-green-200 font-bold">
                 {{ session('success') }}
             </div>
         @endif
 
-        <div class="posts-list">
+        <div class="border-t border-gray-100">
             @forelse ($posts as $post)
-                <div class="post-item">
-                    {{-- MODIFIED: Flex container to hold Title and Delete Button --}}
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <h2 class="post-title">
-                            <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
+                <div class="p-6 border-b border-gray-100 relative hover:bg-slate-50 transition-colors">
+                    
+                    {{-- Title Row --}}
+                    <div class="flex justify-between items-start mb-2">
+                        <h2 class="text-xl font-bold m-0">
+                            <a href="{{ route('posts.show', $post) }}" class="text-sky-600 no-underline hover:underline">
+                                {{ $post->title }}
+                            </a>
                         </h2>
 
-                        {{-- NEW: Delete Button (Admin Only) --}}
+                        {{-- Delete Button (Admin Only) --}}
                         @if(Auth::user()->role === 'admin')
                             <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="delete-btn">Delete</button>
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600 transition-colors cursor-pointer border-none ml-3">
+                                    Delete
+                                </button>
                             </form>
                         @endif
                     </div>
                     
-                    <div class="post-meta">
-                        <span style="color: #333; font-weight: bold;">Priority: {{ $post->priority }}/4</span>
-                        | Submitted by: <a href="{{ route('users.show', $post->user) }}">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
-                        {{-- NEW: Comment Count --}}
-                        | 💬 {{ $post->comments_count ?? $post->comments->count() }} Comments
+                    <div class="text-sm text-slate-500 mb-3 leading-relaxed">
+                        <span class="text-slate-800 font-bold">Priority: {{ $post->priority }}/4</span>
+                        <span class="mx-1 text-slate-300">|</span>
+                        Submitted by: <a href="{{ route('users.show', $post->user) }}" class="text-sky-600 hover:underline font-bold">{{ $post->user->name }}</a> 
+                        on {{ $post->created_at->format('M d, Y') }}
+                        <span class="mx-1 text-slate-300">|</span>
+                        💬 {{ $post->comments_count ?? $post->comments->count() }} Comments
                         <br>
-                        <strong>
+                        <div class="mt-1">
                             Assigned to: 
                             @if($post->assignedTo)
-                                <a href="{{ route('users.show', $post->assignedTo) }}">{{ $post->assignedTo->name }}</a>
+                                <a href="{{ route('users.show', $post->assignedTo) }}" class="text-sky-600 hover:underline font-bold">{{ $post->assignedTo->name }}</a>
                             @else
-                                Unassigned
+                                <span class="font-bold text-slate-400">Unassigned</span>
                             @endif
-                        </strong>
+                        </div>
                     </div>
                     
-                    <p>{{ Str::limit($post->description, 150) }}</p>
+                    <p class="text-slate-700 mb-4">{{ Str::limit($post->description, 150) }}</p>
 
-                    <div class="post-actions">
-                        <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST" class="status-form">
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-dashed border-gray-200">
+                        {{-- Status Form --}}
+                        <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST" class="flex items-center gap-2 text-sm">
                             @csrf
                             @method('PATCH')
-                            <label for="status-{{ $post->id }}">Change Status:</label>
-                            <select name="status" id="status-{{ $post->id }}" onchange="this.form.submit()">
+                            <label for="status-{{ $post->id }}" class="font-bold text-slate-600">Status:</label>
+                            <select name="status" id="status-{{ $post->id }}" onchange="this.form.submit()" 
+                                    class="p-1.5 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer">
                                 <option value="open" @if($post->status == 'open') selected @endif>Open</option>
                                 <option value="in_progress" @if($post->status == 'in_progress') selected @endif>In Progress</option>
                                 <option value="resolved" @if($post->status == 'resolved') selected @endif>Resolved</option>
@@ -144,19 +129,24 @@
                             <form action="{{ route('posts.assign', $post) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="assign-btn">Assign to Me</button>
+                                <button type="submit" class="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-700 transition-colors cursor-pointer border-none">
+                                    Assign to Me
+                                </button>
                             </form>
                         @elseif($post->assigned_to_user_id === Auth::id())
-                            <span style="color: #16a34a; font-weight: bold; font-size: 0.9em;">Assigned to You</span>
+                            <span class="text-green-600 font-bold text-sm flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Assigned to You
+                            </span>
                         @endif
                     </div>
                 </div>
             @empty
-                <p>No tickets found matching your filters.</p>
+                <p class="text-slate-500 italic p-6 text-center">No tickets found matching your filters.</p>
             @endforelse
         </div>
 
-        <div class="pagination-wrapper">
+        <div class="mt-8">
             {{ $posts->links() }}
         </div>
     </div>

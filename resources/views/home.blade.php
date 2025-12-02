@@ -4,48 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - {{ config('app.name', 'My App') }}</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .header h1 { margin: 0; }
-        .logout-btn { background: #e53e3e; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; border: none; cursor: pointer; }
-        .create-post-btn { background: #3490dc; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 10px; }
-        .post-list { margin-top: 20px; }
-        .post { border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 10px; transition: background-color 0.2s; }
-        .post:hover { background-color: #f8f9fa; }
-        .post h2 { margin-top: 0; }
-        .post-meta { font-size: 0.85rem; color: #555; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{{ config('app.name', 'My App') }}</h1>
-            <div>
-                <a href="{{ route('posts.create') }}" class="create-post-btn">Create New Post</a>
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+        
+        {{-- Header --}}
+        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+            <h1 class="text-2xl font-bold m-0 text-slate-800">{{ config('app.name', 'My App') }}</h1>
+            <div class="flex items-center">
+                <a href="{{ route('posts.create') }}" class="bg-sky-600 text-white px-3 py-2 rounded-md text-sm font-bold no-underline hover:bg-sky-700 transition-colors mr-2 inline-block">
+                    Create New Post
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="logout-btn">Log Out</button>
+                    <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md text-sm font-bold border-none cursor-pointer hover:bg-red-700 transition-colors">
+                        Log Out
+                    </button>
                 </form>
             </div>
         </div>
 
-        <div class="post-list">
-            <h2>All Posts</h2>
+        {{-- Post List --}}
+        <div class="mt-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">All Posts</h2>
 
             @forelse ($posts as $post)
-                <div class="post">
-                    <h2>
-                        <a href="{{ route('posts.show', $post) }}" style="text-decoration: none; color: #3490dc;">
+                <div class="border border-gray-200 p-4 rounded-lg mb-4 hover:bg-slate-50 transition-colors">
+                    <h2 class="mt-0 mb-2 text-xl font-bold">
+                        <a href="{{ route('posts.show', $post) }}" class="text-sky-600 no-underline hover:underline">
                             {{ $post->title }}
                         </a>
                     </h2>
-                    <p class="post-meta">By {{ $post->user->name }} on {{ $post->created_at->format('M d, Y') }} | Comments: {{ $post->comments->count() }}</p>
-                    <p>{{ Str::limit($post->description, 150) }}</p>
+                    <p class="text-sm text-slate-500 mb-2">
+                        By <span class="font-semibold">{{ $post->user->name }}</span> on {{ $post->created_at->format('M d, Y') }} | Comments: {{ $post->comments->count() }}
+                    </p>
+                    <p class="text-slate-700 leading-relaxed">
+                        {{ Str::limit($post->description, 150) }}
+                    </p>
                 </div>
             @empty
-                <p>No posts found.</p>
+                <p class="text-slate-500 italic">No posts found.</p>
             @endforelse
         </div>
     </div>
