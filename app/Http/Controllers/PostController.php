@@ -56,10 +56,10 @@ class PostController extends Controller
             'priority' => 'required|integer|between:1,4',
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate Image
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1240', 
         ]);
 
-        // Handle Image Upload
+        
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('posts', 'public');
@@ -70,7 +70,7 @@ class PostController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'priority' => $request->priority,
-            'image_path' => $imagePath, // Save Path
+            'image_path' => $imagePath, 
         ]);
 
         if ($request->has('categories') && !empty($request->categories)) {

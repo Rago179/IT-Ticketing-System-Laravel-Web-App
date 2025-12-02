@@ -176,6 +176,14 @@
                 <span class="category-tag">{{ $category->name }}</span>
             @endforeach
         </div>
+        @if($post->image_path)
+            <div style="margin-bottom: 20px;">
+                <img src="{{ asset('storage/' . $post->image_path) }}" 
+                    alt="Post Image" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #ddd;">
+            </div>
+        @endif
+
 
         <div class="post-content">
             {!! nl2br(e($post->description)) !!}
