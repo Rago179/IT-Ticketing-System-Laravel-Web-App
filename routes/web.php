@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\CategoryController; // <-- IMPORTED
+use App\Http\Controllers\CategoryController; 
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,10 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
 
-// --- 0. PUBLIC HOMEPAGE ---
 Route::view('/', 'welcome')->name('welcome');
 
-// --- 1. GUEST ROUTES ---
 Route::middleware('guest')->group(function () {
     Route::get('login', function () { return view('simple-login'); })->name('login');
     Route::post('login', function (Request $request) {
@@ -56,29 +54,22 @@ Route::middleware('guest')->group(function () {
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
-// --- 2. MAIN AUTH GROUP ---
 Route::middleware(['auth', 'verified'])->group(function () {
     
-    // /allposts is now the main dashboard
     Route::get('/allposts', [PostController::class, 'index'])->name('home');
-
-    // Resource routes for posts (create, store, show, etc.)
-    // We remove 'index' since it's now handled by the 'home' route above
+  
     Route::resource('posts', PostController::class)->except(['index']);
 
-    // Comments
-    Route::resource('comments', CommentController::class)->only(['store', 'destroy']);
-    
-    // User Profiles
+    Route::resource('comments', CommentController::class)->only(['store', 'update', 'destroy', 'edit']);
+
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::patch('/users/{user}/block', [UserController::class, 'toggleBlock'])->name('users.block');
-    // --- Category Routes ---
+
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    // --- Admin/IT Routes ---c
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.updateStatus');
     Route::patch('/posts/{post}/pin', [PostController::class, 'pin'])->name('posts.pin');
     Route::get('/it-dashboard', [PostController::class, 'itDashboard'])->name('it.dashboard');

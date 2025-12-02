@@ -102,6 +102,13 @@
         <a href="{{ route('home') }}" class="back-link">&larr; Back to Dashboard</a>
 
         <h1 class="post-title">{{ $post->title }}</h1>
+        @if(Auth::id() === $post->user_id || Auth::user()->role === 'admin')
+            <div style="margin-bottom: 20px;">
+                <a href="{{ route('posts.edit', $post) }}" style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: bold;">
+                    ✎ Edit Post
+                </a>
+            </div>
+        @endif
 
         {{-- START: Admin/IT Controls --}}
         @if(in_array(Auth::user()->role, ['admin', 'it']))
@@ -194,27 +201,47 @@
 
         {{-- Added ID to the container --}}
         <div id="comments-container">
-            @forelse($post->comments as $comment)
-                <div class="comment" id="comment-{{ $comment->id }}">
-                    <div class="comment-header">
-                        <span><a href="{{ route('users.show', $comment->user) }}">{{ $comment->user->name }}</a></span>
-                        <span class="comment-date">{{ $comment->created_at->diffForHumans() }}</span>
-                    </div>
-                    <div class="comment-body">{!! nl2br(e($comment->content)) !!}</div>
-                    
-                    @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                        <div style="text-align: right; margin-top: 10px;">
-                            <form method="POST" action="{{ route('comments.destroy', $comment) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="delete-btn">Delete</button>
-                            </form>
-                        </div>
-                    @endif
+        @forelse($post->comments as $comment)
+            <div class="comment" id="comment-{{ $comment->id }}">
+                <div class="comment-header">
+                    <span><a href="{{ route('users.show', $comment->user) }}">{{ $comment->user->name }}</a></span>
+                    <span class="comment-date">{{ $comment->created_at->diffForHumans() }}</span>
                 </div>
-            @empty
-                <p id="no-comments-msg">No comments yet.</p>
-            @endforelse
+
+                {{-- Display Mode --}}
+                <div class="comment-body" id="comment-body-{{ $comment->id }}">
+                    {!! nl2br(e($comment->content)) !!}
+                </div>
+
+                {{-- Edit Mode (Hidden by default) --}}
+                @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
+                    <form action="{{ route('comments.update', $comment->id) }}" method="POST" 
+                        id="edit-form-{{ $comment->id }}" style="display: none; margin-top: 10px;">
+                        @csrf
+                        @method('PUT')
+                        <textarea name="content" style="width: 100%; height: 80px;">{{ $comment->content }}</textarea>
+                        <div style="margin-top: 5px;">
+                            <button type="submit" style="background: #3490dc; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
+                            <button type="button" onclick="toggleEdit({{ $comment->id }})" style="background: #ccc; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                        </div>
+                    </form>
+
+                    <div style="text-align: right; margin-top: 10px; font-size: 0.85em;">
+                        {{-- Edit Toggle Button --}}
+                        <button onclick="toggleEdit({{ $comment->id }})" style="background: none; border: none; color: #f59e0b; cursor: pointer; text-decoration: underline; margin-right: 10px;">Edit</button>
+                        
+                        {{-- Delete Button --}}
+                        <form method="POST" action="{{ route('comments.destroy', $comment) }}" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+        @empty
+            <p id="no-comments-msg">No comments yet.</p>
+        @endforelse
         </div>
 
         <div style="margin-top: 40px;">
@@ -319,6 +346,20 @@
             });
         }
     });
+</script>
+<script>
+    function toggleEdit(commentId) {
+        const body = document.getElementById(`comment-body-${commentId}`);
+        const form = document.getElementById(`edit-form-${commentId}`);
+        
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            body.style.display = 'none';
+        } else {
+            form.style.display = 'none';
+            body.style.display = 'block';
+        }
+    }
 </script>
     </div>
 </body>

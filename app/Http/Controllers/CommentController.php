@@ -49,6 +49,33 @@ class CommentController extends Controller
         return back()->with('success', 'Comment posted!');
     }
 
+    public function update(Request $request, $id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        if (Auth::id() !== $comment->user_id && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment->update([
+            'content' => $request->content
+        ]);
+
+        if ($request->wantsJson()) {
+             return response()->json([
+                 'success' => true,
+                 'content' => nl2br(e($comment->content)),
+                 'message' => 'Comment updated'
+             ]);
+        }
+
+        return back()->with('success', 'Comment updated successfully.');
+    }
+
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);

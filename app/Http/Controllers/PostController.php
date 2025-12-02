@@ -92,20 +92,61 @@ class PostController extends Controller
         return view('posts.show', compact('post', 'categories'));
     }
 
+    public function edit(Post $post)
+    {
+        if (Auth::id() !== $post->user_id && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
+    }
+
     public function update(Request $request, Post $post)
     {
-        if (!in_array(Auth::user()->role, ['it', 'admin'])) {
+        $isOwner = Auth::id() === $post->user_id;
+        $isAdmin = Auth::user()->role === 'admin';
+        $isIT = Auth::user()->role === 'it';
+
+        if (!$isOwner && !$isAdmin && !$isIT) {
             abort(403, 'Unauthorized Access');
         }
 
-        $request->validate([
-            'categories' => 'required|array',
+        $rules = [
+            'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
-        ]);
+        ];
 
-        $post->categories()->sync($request->categories);
+        if ($isOwner || $isAdmin) {
+            $rules['title'] = 'required|string|max:255';
+            $rules['description'] = 'required|string';
+            $rules['priority'] = 'required|integer|between:1,4';
+            $rules['image'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'; // 10MB
+        }
 
-        return back()->with('success', 'Post categories updated successfully.');
+        $request->validate($rules);
+
+        if ($isOwner || $isAdmin) {
+            $data = [
+                'title' => $request->title,
+                'description' => $request->description,
+                'priority' => $request->priority,
+            ];
+
+            if ($request->hasFile('image')) {
+                $data['image_path'] = $request->file('image')->store('posts', 'public');
+            }
+
+            $post->update($data);
+        }
+
+        if ($request->has('categories')) {
+             $post->categories()->sync($request->categories);
+        } elseif ($isOwner || $isAdmin) {
+             $post->categories()->detach();
+        }
+
+        return redirect()->route('posts.show', $post)->with('success', 'Post updated successfully.');
     }
 
     public function destroy(Post $post)
