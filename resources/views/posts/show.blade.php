@@ -8,7 +8,6 @@
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        /* ... [Keep existing CSS] ... */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;}
         .header-title { font-size: 1.5em; font-weight: bold; margin: 0; text-decoration: none; color: #333; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
@@ -46,7 +45,6 @@
         .admin-controls .unpin-btn { background: #f59e0b; }
         .admin-error { color: #dc2626; font-weight: bold; margin-top: 10px; font-size: 0.9em; }
 
-        /* ADDED: CSS for Category Grid (Same as Create View) */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -189,11 +187,14 @@
             {!! nl2br(e($post->description)) !!}
         </div>
 
-        <div class="comments-section">
-            <h2>Comments ({{ $post->comments->count() }})</h2>
+    <div class="comments-section">
+        {{-- Added ID to the count span --}}
+        <h2>Comments (<span id="comment-count">{{ $post->comments->count() }}</span>)</h2>
 
+        {{-- Added ID to the container --}}
+        <div id="comments-container">
             @forelse($post->comments as $comment)
-                <div class="comment">
+                <div class="comment" id="comment-{{ $comment->id }}">
                     <div class="comment-header">
                         <span><a href="{{ route('users.show', $comment->user) }}">{{ $comment->user->name }}</a></span>
                         <span class="comment-date">{{ $comment->created_at->diffForHumans() }}</span>
@@ -211,20 +212,124 @@
                     @endif
                 </div>
             @empty
-                <p>No comments yet.</p>
+                <p id="no-comments-msg">No comments yet.</p>
             @endforelse
-
-            <div style="margin-top: 40px;">
-                <h3>Leave a Comment</h3>
-                <form method="POST" action="{{ route('comments.store') }}">
-                    @csrf
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
-                    <textarea name="content" required placeholder="Write something...">{{ old('content') }}</textarea>
-                    @error('content') <div style="color: #dc2626; font-size: 0.9em; margin-bottom: 10px;">{{ $message }}</div> @enderror
-                    <button type="submit" class="submit-btn">Post Comment</button>
-                </form>
-            </div>
         </div>
+
+        <div style="margin-top: 40px;">
+            <h3>Leave a Comment</h3>
+            {{-- Added ID to the form --}}
+            <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
+                @csrf
+                <input type="hidden" name="post_id" value="{{ $post->id }}">
+                <textarea id="comment-content" name="content" required placeholder="Write something...">{{ old('content') }}</textarea>
+                {{-- Error message container --}}
+                <div id="comment-error" style="color: #dc2626; font-size: 0.9em; margin-bottom: 10px; display: none;"></div>
+                <button type="submit" class="submit-btn" id="submit-btn">Post Comment</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- AJAX Script --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const commentForm = document.getElementById('comment-form');
+
+        if (commentForm) {
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const form = this;
+                const submitBtn = document.getElementById('submit-btn');
+                const errorDiv = document.getElementById('comment-error');
+                const noCommentsMsg = document.getElementById('no-comments-msg');
+                const commentsContainer = document.getElementById('comments-container');
+                const countSpan = document.getElementById('comment-count');
+
+                // 1. Lock the Button
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Posting...';
+                errorDiv.style.display = 'none';
+                errorDiv.innerText = '';
+
+                // 2. Prepare Data
+                const formData = new FormData(form);
+
+                // 3. Send Request using Fetch (Native)
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => Promise.reject(data));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // --- SUCCESS ---
+                    if(data.success) {
+                        const comment = data.comment;
+                        
+                        // Remove "No comments" message
+                        if(noCommentsMsg) noCommentsMsg.remove();
+
+                        // Create HTML for new comment
+                        const commentHtml = `
+                            <div class="comment" id="comment-${comment.id}" style="background-color: #f0fdf4; transition: background 1s;">
+                                <div class="comment-header">
+                                    <span><a href="${comment.user_url}">${comment.user_name}</a></span>
+                                    <span class="comment-date">Just now</span>
+                                </div>
+                                <div class="comment-body">${comment.content}</div>
+                                <div style="text-align: right; margin-top: 10px;">
+                                    <form method="POST" action="${comment.delete_url}">
+                                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="delete-btn">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+
+                        // Add to list
+                        commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
+                        
+                        // Update Count
+                        if(countSpan) countSpan.innerText = data.count;
+
+                        // Clear Input
+                        form.reset();
+                    }
+                })
+                .catch(error => {
+                    // --- ERROR ---
+                    console.error('Error:', error);
+                    let msg = 'Something went wrong.';
+                    
+                    if (error.errors && error.errors.content) {
+                        msg = error.errors.content[0]; // Validation error
+                    } else if (error.message) {
+                        msg = error.message; // Controller error
+                    }
+                    
+                    errorDiv.innerText = msg;
+                    errorDiv.style.display = 'block';
+                })
+                .finally(() => {
+                    // --- RESET BUTTON ---
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Post Comment';
+                });
+            });
+        }
+    });
+</script>
     </div>
 </body>
 </html>
