@@ -27,7 +27,6 @@ class CommentController extends Controller
             'content' => $request->content,
         ]);
 
-        // --- AJAX RESPONSE ---
         if ($request->wantsJson()) {
     
             $comment->load('user');       

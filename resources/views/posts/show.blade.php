@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $post->title }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -246,16 +247,13 @@
                 const commentsContainer = document.getElementById('comments-container');
                 const countSpan = document.getElementById('comment-count');
 
-                // 1. Lock the Button
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'Posting...';
                 errorDiv.style.display = 'none';
                 errorDiv.innerText = '';
 
-                // 2. Prepare Data
                 const formData = new FormData(form);
 
-                // 3. Send Request using Fetch (Native)
                 fetch(form.action, {
                     method: 'POST',
                     headers: {
@@ -272,14 +270,11 @@
                     return response.json();
                 })
                 .then(data => {
-                    // --- SUCCESS ---
                     if(data.success) {
                         const comment = data.comment;
                         
-                        // Remove "No comments" message
                         if(noCommentsMsg) noCommentsMsg.remove();
 
-                        // Create HTML for new comment
                         const commentHtml = `
                             <div class="comment" id="comment-${comment.id}" style="background-color: #f0fdf4; transition: background 1s;">
                                 <div class="comment-header">
@@ -297,32 +292,27 @@
                             </div>
                         `;
 
-                        // Add to list
                         commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
                         
-                        // Update Count
                         if(countSpan) countSpan.innerText = data.count;
 
-                        // Clear Input
                         form.reset();
                     }
                 })
                 .catch(error => {
-                    // --- ERROR ---
                     console.error('Error:', error);
                     let msg = 'Something went wrong.';
                     
                     if (error.errors && error.errors.content) {
-                        msg = error.errors.content[0]; // Validation error
+                        msg = error.errors.content[0];
                     } else if (error.message) {
-                        msg = error.message; // Controller error
+                        msg = error.message; 
                     }
                     
                     errorDiv.innerText = msg;
                     errorDiv.style.display = 'block';
                 })
                 .finally(() => {
-                    // --- RESET BUTTON ---
                     submitBtn.disabled = false;
                     submitBtn.innerText = 'Post Comment';
                 });
