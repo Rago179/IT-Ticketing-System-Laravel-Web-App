@@ -4,121 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Post</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;}
-        .header-title { font-size: 1.5em; font-weight: bold; margin: 0; text-decoration: none; color: #333; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .user-info { font-weight: bold; color: #333; }
-        .user-info a { text-decoration:none; color: #3490dc; }
-        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
-
-        .back-link { text-decoration: none; color: #3490dc; display: inline-block; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], textarea, select, input[type="file"] {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
-        }
-        textarea { min-height: 120px; }
-        
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #eee;
-        }
-        .category-grid label {
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .category-grid input[type="checkbox"] {
-            width: auto;
-        }
-
-        .submit-btn { background: #3490dc; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        .submit-btn:hover { background: #2779bd; }
-        .error { color: #e3342f; font-size: 0.875em; margin-top: 5px; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <a href="{{ route('home') }}" class="header-title">{{ config('app.name', 'My App') }}</a>
-            <div class="header-controls">
-                <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}">{{ Auth::user()->name }}</a></span>
-                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
+    {{-- Main Container --}}
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+        
+        {{-- Header Section --}}
+        <div class="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
+            <a href="{{ route('home') }}" class="text-2xl font-bold text-slate-800 no-underline hover:text-sky-600">
+                {{ config('app.name', 'My App') }}
+            </a>
+            
+            <div class="flex items-center gap-4 text-sm font-bold text-slate-700">
+                <span>
+                    Hi, <a href="{{ route('users.show', Auth::user()) }}" class="text-sky-600 hover:underline">{{ Auth::user()->name }}</a>
+                </span>
+                
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="logout-btn">Log Out</button>
+                    <button type="submit" class="text-slate-500 underline hover:text-red-600 cursor-pointer bg-transparent border-none">
+                        Log Out
+                    </button>
                 </form>
             </div>
         </div>
 
-        <a href="{{ route('home') }}" class="back-link">&larr; Back to Dashboard</a>
+        <a href="{{ route('home') }}" class="inline-block mb-5 text-sky-600 font-bold hover:underline">
+            &larr; Back to Dashboard
+        </a>
         
-        <h1>Create a New Post</h1>
+        <h1 class="text-3xl font-bold text-sky-600 mb-6">Create a New Post</h1>
 
-        {{-- Added enctype for file upload support --}}
         <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
             @csrf
             
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" value="{{ old('title') }}" required autofocus>
-                @error('title') <div class="error">{{ $message }}</div> @enderror
+            {{-- Title Input --}}
+            <div class="mb-5">
+                <label for="title" class="block font-bold text-gray-700 mb-1">Title</label>
+                <input type="text" id="title" name="title" value="{{ old('title') }}" required autofocus
+                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2">
+                @error('title') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
             
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" required>{{ old('description') }}</textarea>
-                @error('description') <div class="error">{{ $message }}</div> @enderror
+            {{-- Description Input --}}
+            <div class="mb-5">
+                <label for="description" class="block font-bold text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" required
+                          class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 min-h-[120px]">{{ old('description') }}</textarea>
+                @error('description') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
 
-            {{-- New Image Upload Field --}}
-            <div class="form-group">
-                <label for="image">Attach Image (Optional)</label>
-                <input type="file" id="image" name="image" accept="image/*">
-                @error('image') <div class="error">{{ $message }}</div> @enderror
+            {{-- Image Upload --}}
+            <div class="mb-5">
+                <label for="image" class="block font-bold text-gray-700 mb-1">Attach Image (Optional)</label>
+                <input type="file" id="image" name="image" accept="image/*"
+                       class="w-full border border-gray-300 rounded-md p-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                @error('image') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
 
-            <div class="form-group">
-                <label for="priority">Priority <span style="font-weight: normal; font-size: 0.9em; color: #666;">(1 = Lowest, 4 = Highest)</span></label>
-                <input type="number" id="priority" name="priority" min="1" max="4" value="{{ old('priority', 1) }}" required>
-                @error('priority') <div class="error">{{ $message }}</div> @enderror
+            {{-- Priority Input --}}
+            <div class="mb-5">
+                <label for="priority" class="block font-bold text-gray-700 mb-1">
+                    Priority <span class="font-normal text-sm text-gray-500">(1 = Lowest, 4 = Highest)</span>
+                </label>
+                <input type="number" id="priority" name="priority" min="1" max="4" value="{{ old('priority', 1) }}" required
+                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2">
+                @error('priority') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
 
-            <!-- Category Selector -->
-            <div class="form-group">
-                <label>Categories (Optional)</label>
-                <div class="category-grid">
+            {{-- Categories Grid --}}
+            <div class="mb-5">
+                <label class="block font-bold text-gray-700 mb-2">Categories (Optional)</label>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 bg-slate-50 p-4 rounded-lg border border-gray-200">
                     @forelse($categories as $category)
                         <div>
-                            <label for="category-{{ $category->id }}">
+                            <label for="category-{{ $category->id }}" class="flex items-center gap-2 cursor-pointer font-normal text-gray-700 hover:text-sky-600">
                                 <input type="checkbox"
                                        name="categories[]"
                                        id="category-{{ $category->id }}"
                                        value="{{ $category->id }}"
+                                       class="rounded border-gray-300 text-sky-600 shadow-sm focus:ring-sky-500"
                                        @if(is_array(old('categories')) && in_array($category->id, old('categories'))) checked @endif
                                 >
                                 {{ $category->name }}
                             </label>
                         </div>
                     @empty
-                        <p style="color: #666; font-style: italic;">No categories created. Admin can create them from the dashboard.</p>
+                        <p class="text-gray-500 italic col-span-full">No categories created. Admin can create them from the dashboard.</p>
                     @endforelse
                 </div>
-                @error('categories.*') <div class="error">{{ $message }}</div> @enderror
+                @error('categories.*') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
             </div>
             
-            <div>
-                <button type="submit" class="submit-btn">Publish Post</button>
+            {{-- Submit Button --}}
+            <div class="mt-6">
+                <button type="submit" class="bg-sky-600 text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-sky-700 transition duration-200 cursor-pointer shadow-sm w-full sm:w-auto">
+                    Publish Post
+                </button>
             </div>
         </form>
     </div>

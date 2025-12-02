@@ -5,106 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $post->title }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;}
-        .header-title { font-size: 1.5em; font-weight: bold; margin: 0; text-decoration: none; color: #333; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .user-info { font-weight: bold; color: #333; }
-        .user-info a { text-decoration:none; color: #3490dc; }
-        .logout-btn { background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; }
-        .back-link { text-decoration: none; color: #3490dc; display: inline-block; margin-bottom: 20px; }
-        .post-title { margin-top: 0; }
-        .post-meta { color: #888; font-size: 0.9em; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .post-meta a { color: #3490dc; text-decoration: none; font-weight: bold; }
-        .post-meta a:hover { text-decoration: underline; }
-        .post-content { font-size: 1.1em; line-height: 1.6; margin-bottom: 40px; white-space: pre-wrap; }
-        .category-tags { margin-top: 10px; margin-bottom: 20px; }
-        .category-tag { background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; font-weight: 500; }
-        .comments-section { border-top: 2px solid #eee; padding-top: 20px; }
-        .comment { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .comment-header { font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .comment-header a { color: #333; text-decoration: none; }
-        .comment-header a:hover { text-decoration: underline; }
-        .comment-date { font-weight: normal; color: #777; font-size: 0.9em; }
-        .comment-body { white-space: pre-wrap; }
-        .delete-btn { color: red; background: none; border: none; cursor: pointer; font-size: 0.85em; text-decoration: underline; }
-        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; min-height: 80px; margin-bottom: 10px; box-sizing: border-box; }
-        .submit-btn { background: #3490dc; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        .submit-btn:hover { background: #2779bd; }
-        
-        .admin-controls { margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; border-left: 5px solid #3490dc; }
-        .admin-controls h3 { margin-top: 0; margin-bottom: 10px; }
-        .admin-controls form { margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
-        .admin-controls form:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-        .admin-controls label { font-weight: bold; margin-right: 10px; display: block; margin-bottom: 5px; }
-        .admin-controls select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-        .admin-controls button { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: white; }
-        .admin-controls .pin-btn { background: #64748b; }
-        .admin-controls .unpin-btn { background: #f59e0b; }
-        .admin-error { color: #dc2626; font-weight: bold; margin-top: 10px; font-size: 0.9em; }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
-            background: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-        .category-grid label {
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-bottom: 0;
-        }
-        .category-grid input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    {{--Global Alerts --}}
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
+    {{-- Global Alerts --}}
     @if (session('success'))
-        <div id="post-success-alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #dcfce7; color: #166534; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-width: 300px; font-weight: bold;">
+        <div id="post-success-alert" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-green-100 text-green-800 px-6 py-3 rounded-lg shadow-md font-bold flex items-center gap-3 min-w-[300px] justify-between">
             <span>{{ session('success') }}</span>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #15803d; font-size: 20px; cursor: pointer;">&times;</button>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
         </div>
     @endif
 
     @if (session('error'))
-        <div id="post-error-alert" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #fee2e2; color: #dc2626; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; min-width: 300px; font-weight: bold; border: 1px solid #ef4444;">
+        <div id="post-error-alert" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-red-100 text-red-800 px-6 py-3 rounded-lg shadow-md font-bold border border-red-500 flex items-center gap-3 min-w-[300px] justify-between">
             <span>🚫 {{ session('error') }}</span>
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #dc2626; font-size: 20px; cursor: pointer;">&times;</button>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900 text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
         </div>
     @endif
 
-    <div class="container">
-        <div class="header">
-            <a href="{{ route('home') }}" class="header-title">{{ config('app.name', 'IT-Ticket-System') }}</a>
-            <div class="header-controls">
-                <span class="user-info">Hi, <a href="{{ route('users.show', Auth::user()) }}">{{ Auth::user()->name }}</a></span>
-                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+    {{-- Main Container --}}
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+        
+        {{-- Header --}}
+        <div class="flex justify-between items-center mb-5 pb-3 border-b border-gray-100">
+            <a href="{{ route('home') }}" class="text-2xl font-bold text-slate-800 no-underline hover:text-sky-600">
+                {{ config('app.name', 'IT-Ticket-System') }}
+            </a>
+            <div class="flex items-center gap-4 text-sm font-bold text-slate-700">
+                <span>
+                    Hi, <a href="{{ route('users.show', Auth::user()) }}" class="text-sky-600 hover:underline">{{ Auth::user()->name }}</a>
+                </span>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="logout-btn">Log Out</button>
+                    <button type="submit" class="text-slate-500 underline hover:text-red-600 cursor-pointer bg-transparent border-none">Log Out</button>
                 </form>
             </div>
         </div>
 
-        <a href="{{ route('home') }}" class="back-link">&larr; Back to Dashboard</a>
+        <a href="{{ route('home') }}" class="inline-block mb-5 text-sky-600 font-bold hover:underline">
+            &larr; Back to Dashboard
+        </a>
 
-        <h1 class="post-title">{{ $post->title }}</h1>
+        <h1 class="text-3xl font-bold text-slate-800 mb-4">{{ $post->title }}</h1>
+
         @if(Auth::id() === $post->user_id || Auth::user()->role === 'admin')
-            <div style="margin-bottom: 20px;">
-                <a href="{{ route('posts.edit', $post) }}" style="background: #f59e0b; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: bold;">
+            <div class="mb-6">
+                <a href="{{ route('posts.edit', $post) }}" class="inline-block bg-orange-500 text-white px-3 py-2 rounded-md font-bold text-sm hover:bg-orange-600 transition-colors no-underline">
                     ✎ Edit Post
                 </a>
             </div>
@@ -112,58 +60,52 @@
 
         {{-- START: Admin/IT Controls --}}
         @if(in_array(Auth::user()->role, ['admin', 'it']))
-            <div class="admin-controls">
-                <h3>IT/Admin Controls</h3>
+            <div class="bg-slate-50 p-6 rounded-r-lg border-l-4 border-sky-600 mb-8">
+                <h3 class="mt-0 mb-4 text-lg font-bold text-slate-700">IT/Admin Controls</h3>
                 
-                {{-- 1. Status Update Form --}}
-                <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST">
+                {{-- 1. Status Update --}}
+                <form action="{{ route('posts.updateStatus', $post->id) }}" method="POST" class="mb-4 border-b border-slate-200 pb-4 last:border-0 last:pb-0 last:mb-0">
                     @csrf
                     @method('PATCH')
-                    <label for="status">Update Status:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select name="status" id="status">
+                    <label for="status" class="block font-bold text-slate-700 mb-2">Update Status:</label>
+                    <div class="flex gap-3">
+                        <select name="status" id="status" class="p-2 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500">
                             <option value="open" {{ $post->status == 'open' ? 'selected' : '' }}>Open</option>
                             <option value="in_progress" {{ $post->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="resolved" {{ $post->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
                         </select>
-                        <button type="submit" style="background: #3490dc;">Update Status</button>
+                        <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors">Update Status</button>
                     </div>
-                    @error('status') <div class="admin-error">{{ $message }}</div> @enderror
+                    @error('status') <div class="text-red-600 text-sm font-bold mt-2">{{ $message }}</div> @enderror
                 </form>
 
-                {{-- 2. Category Update Form (Checkbox Style) --}}
-                <form action="{{ route('posts.update', $post->id) }}" method="POST">
+                {{-- 2. Category Update --}}
+                <form action="{{ route('posts.update', $post->id) }}" method="POST" class="mb-4 border-b border-slate-200 pb-4 last:border-0 last:pb-0 last:mb-0">
                     @csrf
                     @method('PUT')
-                    <label>Update Categories:</label>
-                    <div class="category-grid">
+                    <label class="block font-bold text-slate-700 mb-2">Update Categories:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 bg-white p-3 rounded border border-gray-200">
                         @foreach($categories as $category)
-                            <div>
-                                <label for="cat-{{ $category->id }}">
-                                    <input type="checkbox" 
-                                           name="categories[]" 
-                                           id="cat-{{ $category->id }}" 
-                                           value="{{ $category->id }}"
-                                           {{-- Check if post already has this category --}}
-                                           @if($post->categories->contains($category->id)) checked @endif
-                                    >
-                                    {{ $category->name }}
-                                </label>
-                            </div>
+                            <label for="cat-{{ $category->id }}" class="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-sky-600">
+                                <input type="checkbox" name="categories[]" id="cat-{{ $category->id }}" value="{{ $category->id }}"
+                                       class="rounded border-gray-300 text-sky-600 focus:ring-sky-500"
+                                       @if($post->categories->contains($category->id)) checked @endif>
+                                {{ $category->name }}
+                            </label>
                         @endforeach
                     </div>
-                    <button type="submit" style="background: #3490dc;">Save Categories</button>
+                    <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors">Save Categories</button>
                 </form>
                 
-                {{-- 3. Pin Post Form (Admin Only) --}}
+                {{-- 3. Pin Post --}}
                 @if(Auth::user()->role === 'admin')
-                <form action="{{ route('posts.pin', $post) }}" method="POST">
+                <form action="{{ route('posts.pin', $post) }}" method="POST" class="mb-0">
                     @csrf
                     @method('PATCH')
                     @if($post->is_pinned)
-                        <button type="submit" class="unpin-btn">📌 Unpin Post</button>
+                        <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors">📌 Unpin Post</button>
                     @else
-                        <button type="submit" class="pin-btn">📌 Pin Post</button>
+                        <button type="submit" class="bg-slate-500 text-white px-4 py-2 rounded-md hover:bg-slate-600 transition-colors">📌 Pin Post</button>
                     @endif
                 </form>
                 @endif
@@ -171,210 +113,196 @@
         @endif
         {{-- END: Admin/IT Controls --}}
 
-        <div class="post-meta">
-            {{-- ... [Rest of your view remains unchanged] ... --}}
-            Priority: <strong>{{ $post->priority }}/4</strong> 
-            | Posted by <a href="{{ route('users.show', $post->user) }}"><strong>{{ $post->user->name }}</strong></a> on {{ $post->created_at->format('M d, Y') }}
+        <div class="text-sm text-slate-500 mb-6 pb-3 border-b border-gray-100">
+            Priority: <strong class="text-slate-800">{{ $post->priority }}/4</strong> 
+            | Posted by <a href="{{ route('users.show', $post->user) }}" class="font-bold text-sky-600 hover:underline">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
         </div>
         
-        <div class="category-tags">
+        <div class="flex flex-wrap gap-2 mb-6">
             @foreach($post->categories as $category)
-                <span class="category-tag">{{ $category->name }}</span>
+                <span class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">{{ $category->name }}</span>
             @endforeach
         </div>
+
         @if($post->image_path)
-            <div style="margin-bottom: 20px;">
+            <div class="mb-6">
                 <img src="{{ asset('storage/' . $post->image_path) }}" 
                     alt="Post Image" 
-                    style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #ddd;">
+                    class="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm">
             </div>
         @endif
 
-
-        <div class="post-content">
+        <div class="text-lg leading-relaxed text-slate-800 whitespace-pre-wrap mb-10">
             {!! nl2br(e($post->description)) !!}
         </div>
 
-    <div class="comments-section">
-        {{-- Added ID to the count span --}}
-        <h2>Comments (<span id="comment-count">{{ $post->comments->count() }}</span>)</h2>
+        {{-- COMMENTS SECTION --}}
+        <div class="border-t-2 border-slate-100 pt-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">Comments (<span id="comment-count">{{ $post->comments->count() }}</span>)</h2>
 
-        {{-- Added ID to the container --}}
-        <div id="comments-container">
-        @forelse($post->comments as $comment)
-            <div class="comment" id="comment-{{ $comment->id }}">
-                <div class="comment-header">
-                    <span><a href="{{ route('users.show', $comment->user) }}">{{ $comment->user->name }}</a></span>
-                    <span class="comment-date">{{ $comment->created_at->diffForHumans() }}</span>
-                </div>
-
-                {{-- Display Mode --}}
-                <div class="comment-body" id="comment-body-{{ $comment->id }}">
-                    {!! nl2br(e($comment->content)) !!}
-                </div>
-
-                {{-- Edit Mode (Hidden by default) --}}
-                @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                    <form action="{{ route('comments.update', $comment->id) }}" method="POST" 
-                        id="edit-form-{{ $comment->id }}" style="display: none; margin-top: 10px;">
-                        @csrf
-                        @method('PUT')
-                        <textarea name="content" style="width: 100%; height: 80px;">{{ $comment->content }}</textarea>
-                        <div style="margin-top: 5px;">
-                            <button type="submit" style="background: #3490dc; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
-                            <button type="button" onclick="toggleEdit({{ $comment->id }})" style="background: #ccc; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
-                        </div>
-                    </form>
-
-                    <div style="text-align: right; margin-top: 10px; font-size: 0.85em;">
-                        {{-- Edit Toggle Button --}}
-                        <button onclick="toggleEdit({{ $comment->id }})" style="background: none; border: none; color: #f59e0b; cursor: pointer; text-decoration: underline; margin-right: 10px;">Edit</button>
-                        
-                        {{-- Delete Button --}}
-                        <form method="POST" action="{{ route('comments.destroy', $comment) }}" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="delete-btn">Delete</button>
-                        </form>
+            <div id="comments-container">
+            @forelse($post->comments as $comment)
+                <div class="bg-slate-50 p-5 rounded-lg mb-4" id="comment-{{ $comment->id }}">
+                    <div class="flex justify-between items-center mb-2 font-bold">
+                        <a href="{{ route('users.show', $comment->user) }}" class="text-slate-800 hover:underline">{{ $comment->user->name }}</a>
+                        <span class="text-sm font-normal text-slate-500">{{ $comment->created_at->diffForHumans() }}</span>
                     </div>
-                @endif
+
+                    {{-- Display Mode --}}
+                    <div class="whitespace-pre-wrap text-slate-700" id="comment-body-{{ $comment->id }}">
+                        {!! nl2br(e($comment->content)) !!}
+                    </div>
+
+                    {{-- Edit Mode --}}
+                    @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
+                        <form action="{{ route('comments.update', $comment->id) }}" method="POST" 
+                            id="edit-form-{{ $comment->id }}" class="hidden mt-3">
+                            @csrf
+                            @method('PUT')
+                            <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[80px]">{{ $comment->content }}</textarea>
+                            <div class="mt-2 flex gap-2">
+                                <button type="submit" class="bg-sky-600 text-white px-3 py-1 rounded text-sm hover:bg-sky-700">Save</button>
+                                <button type="button" onclick="toggleEdit({{ $comment->id }})" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Cancel</button>
+                            </div>
+                        </form>
+
+                        <div class="text-right mt-3 text-sm">
+                            <button onclick="toggleEdit({{ $comment->id }})" class="text-orange-500 hover:underline mr-3 bg-transparent border-none cursor-pointer">Edit</button>
+                            
+                            <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">Delete</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <p id="no-comments-msg" class="text-slate-500 italic">No comments yet.</p>
+            @endforelse
             </div>
-        @empty
-            <p id="no-comments-msg">No comments yet.</p>
-        @endforelse
+
+            <div class="mt-10">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">Leave a Comment</h3>
+                <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
+                    @csrf
+                    <input type="hidden" name="post_id" value="{{ $post->id }}">
+                    <textarea id="comment-content" name="content" required placeholder="Write something..."
+                              class="w-full p-4 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-3"></textarea>
+                    
+                    <div id="comment-error" class="hidden text-red-600 text-sm mb-3 font-bold"></div>
+                    
+                    <button type="submit" id="submit-btn" class="bg-sky-600 text-white px-6 py-3 rounded-md font-bold hover:bg-sky-700 transition-colors shadow-sm">
+                        Post Comment
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <div style="margin-top: 40px;">
-            <h3>Leave a Comment</h3>
-            {{-- Added ID to the form --}}
-            <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
-                @csrf
-                <input type="hidden" name="post_id" value="{{ $post->id }}">
-                <textarea id="comment-content" name="content" required placeholder="Write something...">{{ old('content') }}</textarea>
-                {{-- Error message container --}}
-                <div id="comment-error" style="color: #dc2626; font-size: 0.9em; margin-bottom: 10px; display: none;"></div>
-                <button type="submit" class="submit-btn" id="submit-btn">Post Comment</button>
-            </form>
-        </div>
     </div>
 
     {{-- AJAX Script --}}
-<script>
-    // Toggle Function (Keep this outside the event listener)
-    function toggleEdit(commentId) {
-        const body = document.getElementById(`comment-body-${commentId}`);
-        const form = document.getElementById(`edit-form-${commentId}`);
-        
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            body.style.display = 'none';
-        } else {
-            form.style.display = 'none';
-            body.style.display = 'block';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const commentForm = document.getElementById('comment-form');
-
-        if (commentForm) {
-            commentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const form = this;
-                const submitBtn = document.getElementById('submit-btn');
-                const errorDiv = document.getElementById('comment-error');
-                const noCommentsMsg = document.getElementById('no-comments-msg');
-                const commentsContainer = document.getElementById('comments-container');
-                const countSpan = document.getElementById('comment-count');
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    <script>
+        function toggleEdit(commentId) {
+            const body = document.getElementById(`comment-body-${commentId}`);
+            const form = document.getElementById(`edit-form-${commentId}`);
             
-                submitBtn.disabled = true;
-                submitBtn.innerText = 'Posting...';
-                errorDiv.style.display = 'none';
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+                body.classList.add('hidden');
+            } else {
+                form.classList.add('hidden');
+                body.classList.remove('hidden');
+            }
+        }
 
-                const formData = new FormData(form);
+        document.addEventListener('DOMContentLoaded', function () {
+            const commentForm = document.getElementById('comment-form');
 
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        const c = data.comment;
-                        if(noCommentsMsg) noCommentsMsg.remove();
+            if (commentForm) {
+                commentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const form = this;
+                    const submitBtn = document.getElementById('submit-btn');
+                    const errorDiv = document.getElementById('comment-error');
+                    const noCommentsMsg = document.getElementById('no-comments-msg');
+                    const commentsContainer = document.getElementById('comments-container');
+                    const countSpan = document.getElementById('comment-count');
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Posting...';
+                    errorDiv.classList.add('hidden');
 
-                        const commentHtml = `
-                            <div class="comment" id="comment-${c.id}" style="background-color: #f0fdf4; border-left: 5px solid #22c55e;">
-                                <div class="comment-header">
-                                    <span><a href="${c.user_url}">${c.user_name}</a></span>
-                                    <span class="comment-date">Just now</span>
-                                </div>
+                    const formData = new FormData(form);
 
-                                <div class="comment-body" id="comment-body-${c.id}">
-                                    ${c.content}
-                                </div>
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            const c = data.comment;
+                            if(noCommentsMsg) noCommentsMsg.remove();
 
-                                <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" style="display: none; margin-top: 10px;">
-                                    <input type="hidden" name="_token" value="${csrfToken}">
-                                    <input type="hidden" name="_method" value="PUT">
-                                    <textarea name="content" style="width: 100%; height: 80px;">${c.raw_content}</textarea>
-                                    <div style="margin-top: 5px;">
-                                        <button type="submit" style="background: #3490dc; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
-                                        <button type="button" onclick="toggleEdit(${c.id})" style="background: #ccc; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                            // Tailwind-styled new comment
+                            const commentHtml = `
+                                <div class="bg-green-50 p-5 rounded-r-lg mb-4 border-l-4 border-green-500" id="comment-${c.id}">
+                                    <div class="flex justify-between items-center mb-2 font-bold">
+                                        <span><a href="${c.user_url}" class="text-slate-800 hover:underline">${c.user_name}</a></span>
+                                        <span class="text-sm font-normal text-slate-500">Just now</span>
                                     </div>
-                                </form>
 
-                                <div style="text-align: right; margin-top: 10px; font-size: 0.85em;">
-                                    <button onclick="toggleEdit(${c.id})" style="background: none; border: none; color: #f59e0b; cursor: pointer; text-decoration: underline; margin-right: 10px;">Edit</button>
-                                    
-                                    <form method="POST" action="${c.delete_url}" style="display: inline;">
+                                    <div class="whitespace-pre-wrap text-slate-700" id="comment-body-${c.id}">
+                                        ${c.content}
+                                    </div>
+
+                                    <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" class="hidden mt-3">
                                         <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="delete-btn">Delete</button>
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[80px]">${c.raw_content}</textarea>
+                                        <div class="mt-2 flex gap-2">
+                                            <button type="submit" class="bg-sky-600 text-white px-3 py-1 rounded text-sm hover:bg-sky-700">Save</button>
+                                            <button type="button" onclick="toggleEdit(${c.id})" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Cancel</button>
+                                        </div>
                                     </form>
-                                </div>
-                            </div>
-                        `;
 
-                        commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
-                        if(countSpan) countSpan.innerText = data.count;
-                        form.reset();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    errorDiv.innerText = "Error posting comment.";
-                    errorDiv.style.display = 'block';
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'Post Comment';
+                                    <div class="text-right mt-3 text-sm">
+                                        <button onclick="toggleEdit(${c.id})" class="text-orange-500 hover:underline mr-3 bg-transparent border-none cursor-pointer">Edit</button>
+                                        
+                                        <form method="POST" action="${c.delete_url}" class="inline">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            `;
+
+                            commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
+                            if(countSpan) countSpan.innerText = data.count;
+                            form.reset();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorDiv.innerText = "Error posting comment.";
+                        errorDiv.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = 'Post Comment';
+                    });
                 });
-            });
-        }
-    });
-</script>
-<script>
-    function toggleEdit(commentId) {
-        const body = document.getElementById(`comment-body-${commentId}`);
-        const form = document.getElementById(`edit-form-${commentId}`);
-        
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            body.style.display = 'none';
-        } else {
-            form.style.display = 'none';
-            body.style.display = 'block';
-        }
-    }
-</script>
-    </div>
+            }
+        });
+    </script>
 </body>
 </html>

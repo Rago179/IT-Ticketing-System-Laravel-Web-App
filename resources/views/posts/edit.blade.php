@@ -4,58 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Post - {{ $post->title }}</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        textarea { min-height: 120px; }
-        .submit-btn { background: #3490dc; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        .cancel-btn { background: #64748b; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 10px;}
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 10px; border: 1px solid #eee; background: #f8fafc; }
-    </style>
+    {{-- IMPORTANT: This loads Tailwind --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        <h1>Edit Post</h1>
+<body class="font-sans p-5 bg-gray-50 text-slate-800">
+
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+        <h1 class="text-3xl font-bold text-sky-600 mb-6">Edit Post</h1>
 
         <form method="POST" action="{{ route('posts.update', $post) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" value="{{ old('title', $post->title) }}" required>
+            {{-- Title --}}
+            <div class="mb-5">
+                <label for="title" class="block font-bold text-gray-700 mb-1">Title</label>
+                <input type="text" id="title" name="title" value="{{ old('title', $post->title) }}" required
+                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2">
             </div>
             
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" required>{{ old('description', $post->description) }}</textarea>
+            {{-- Description --}}
+            <div class="mb-5">
+                <label for="description" class="block font-bold text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" required
+                          class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 min-h-[120px]">{{ old('description', $post->description) }}</textarea>
             </div>
 
-            <div class="form-group">
-                <label for="image">Change Image (Optional)</label>
+            {{-- Image Upload & Preview --}}
+            <div class="mb-5">
+                <label for="image" class="block font-bold text-gray-700 mb-1">Change Image (Optional)</label>
+                
                 @if($post->image_path)
-                    <div style="margin-bottom: 10px;">
-                        <img src="{{ asset('storage/' . $post->image_path) }}" alt="Current Image" style="height: 100px; border-radius: 5px;">
-                        <div style="font-size: 0.8em; color: #666;">Current Image</div>
+                    <div class="mb-3">
+                        <img src="{{ asset('storage/' . $post->image_path) }}" alt="Current Image" class="h-24 rounded-md border border-gray-200">
+                        <div class="text-xs text-gray-500 mt-1">Current Image</div>
                     </div>
                 @endif
-                <input type="file" id="image" name="image" accept="image/*">
+
+                <input type="file" id="image" name="image" accept="image/*"
+                       class="w-full border border-gray-300 rounded-md p-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
             </div>
 
-            <div class="form-group">
-                <label for="priority">Priority</label>
-                <input type="number" id="priority" name="priority" min="1" max="4" value="{{ old('priority', $post->priority) }}" required>
+            {{-- Priority --}}
+            <div class="mb-5">
+                <label for="priority" class="block font-bold text-gray-700 mb-1">Priority</label>
+                <input type="number" id="priority" name="priority" min="1" max="4" value="{{ old('priority', $post->priority) }}" required
+                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2">
             </div>
 
-            <div class="form-group">
-                <label>Categories</label>
-                <div class="category-grid">
+            {{-- Categories --}}
+            <div class="mb-5">
+                <label class="block font-bold text-gray-700 mb-2">Categories</label>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 bg-slate-50 p-4 rounded-lg border border-gray-200">
                     @foreach($categories as $category)
-                        <label>
+                        <label class="flex items-center gap-2 cursor-pointer font-normal text-gray-700 hover:text-sky-600">
                             <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                                class="rounded border-gray-300 text-sky-600 shadow-sm focus:ring-sky-500"
                                 @if($post->categories->contains($category->id)) checked @endif
                             >
                             {{ $category->name }}
@@ -64,9 +68,14 @@
                 </div>
             </div>
             
-            <div>
-                <a href="{{ route('posts.show', $post) }}" class="cancel-btn">Cancel</a>
-                <button type="submit" class="submit-btn">Update Post</button>
+            {{-- Actions --}}
+            <div class="flex items-center gap-3 mt-8">
+                <a href="{{ route('posts.show', $post) }}" class="bg-slate-500 text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-slate-600 transition duration-200 cursor-pointer shadow-sm no-underline inline-block">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-sky-600 text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-sky-700 transition duration-200 cursor-pointer shadow-sm">
+                    Update Post
+                </button>
             </div>
         </form>
     </div>
