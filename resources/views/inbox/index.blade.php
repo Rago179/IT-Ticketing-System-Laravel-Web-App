@@ -55,10 +55,24 @@
                         <div>
                             <p class="text-slate-800 mb-1">
                                 <span class="font-bold">{{ $notification->data['user_name'] ?? 'Someone' }}</span> 
-                                commented on 
+                                
+                                {{-- UPDATED LOGIC START --}}
+                                @if(isset($notification->data['type']) && $notification->data['type'] === 'assigned')
+                                    assigned ticket
+                                @else
+                                    commented on 
+                                @endif
+                                {{-- UPDATED LOGIC END --}}
+
                                 <a href="{{ route('posts.show', $notification->data['post_id']) }}" class="text-sky-600 font-bold no-underline hover:underline">
                                     "{{ $notification->data['post_title'] ?? 'your post' }}"
                                 </a>
+
+                                {{-- SUFFIX START --}}
+                                @if(isset($notification->data['type']) && $notification->data['type'] === 'assigned')
+                                    to you
+                                @endif
+                                {{-- SUFFIX END --}}
                             </p>
                             <span class="text-xs text-slate-500">{{ $notification->created_at->diffForHumans() }}</span>
                         </div>

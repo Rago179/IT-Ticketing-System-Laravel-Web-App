@@ -253,8 +253,8 @@ class PostController extends Controller
         }
         
         $post->save();
-        $assignedUser = User::find($request->user_id);
-        
+       $assignedUser = User::find($post->assigned_to_user_id); 
+
         if ($assignedUser && $assignedUser->id !== Auth::id()) {
             $assignedUser->notify(new AssignedTicketNotification($post, Auth::user()->name));
         }
