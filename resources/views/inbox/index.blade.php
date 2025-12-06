@@ -56,23 +56,23 @@
                             <p class="text-slate-800 mb-1">
                                 <span class="font-bold">{{ $notification->data['user_name'] ?? 'Someone' }}</span> 
                                 
-                                {{-- UPDATED LOGIC START --}}
-                                @if(isset($notification->data['type']) && $notification->data['type'] === 'assigned')
+                                @php $type = $notification->data['type'] ?? 'comment'; @endphp
+
+                                @if($type === 'assigned')
                                     assigned ticket
+                                @elseif($type === 'status_changed')
+                                    changed status to <span class="font-bold uppercase">{{ str_replace('_', ' ', $notification->data['new_status']) }}</span> for
                                 @else
                                     commented on 
                                 @endif
-                                {{-- UPDATED LOGIC END --}}
 
                                 <a href="{{ route('posts.show', $notification->data['post_id']) }}" class="text-sky-600 font-bold no-underline hover:underline">
                                     "{{ $notification->data['post_title'] ?? 'your post' }}"
                                 </a>
 
-                                {{-- SUFFIX START --}}
-                                @if(isset($notification->data['type']) && $notification->data['type'] === 'assigned')
+                                @if($type === 'assigned')
                                     to you
                                 @endif
-                                {{-- SUFFIX END --}}
                             </p>
                             <span class="text-xs text-slate-500">{{ $notification->created_at->diffForHumans() }}</span>
                         </div>

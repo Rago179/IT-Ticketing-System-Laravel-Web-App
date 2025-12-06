@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\AssignedTicketNotification;
+use App\Notifications\TicketStatusChangedNotification;
 
 class PostController extends Controller
 {
@@ -161,7 +162,7 @@ class PostController extends Controller
         return back()->with('success', 'Post deleted.');
     }
 
-    public function updateStatus(Request $request, $id)
+public function updateStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:open,in_progress,resolved'
@@ -185,9 +186,13 @@ class PostController extends Controller
 
         $post->update(['status' => $request->status]);
 
-        return back()->with('success', 'Status updated!');
-    }
+        if ($post->user_id !== Auth::id()) {
+            $post->user->notify(new TicketStatusChangedNotification($post, Auth::user()->name, $request->status));
+        }
 
+        return back()->with('success', 'Status updated!');
+    }    
+    
     public function pin(Post $post)
     {
         if (Auth::user()->role !== 'admin') {
