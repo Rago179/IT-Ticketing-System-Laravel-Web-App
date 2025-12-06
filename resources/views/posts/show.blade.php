@@ -211,43 +211,10 @@
                     .then(response => response.json())
                     .then(data => {
                         if(data.success) {
-                            const c = data.comment;
+                            
                             if(noCommentsMsg) noCommentsMsg.remove();
-
-                            // Tailwind-styled new comment
- const commentHtml = `
-                                <div class="bg-slate-50 p-5 rounded-lg mb-4 text-left block w-full" id="comment-${c.id}">
-                                    <div class="flex justify-between items-center mb-2 font-bold">
-                                        <a href="${c.user_url}" class="text-slate-800 hover:underline">${c.user_name}</a>
-                                        <span class="text-sm font-normal text-slate-500">Just now</span>
-                                    </div>
-
-                                    <div class="whitespace-pre-wrap text-slate-700 text-left" id="comment-body-${c.id}">
-                                        ${c.content}
-                                    </div>
-
-                                    <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" class="hidden mt-3 text-left">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="PUT">
-                                        <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[80px]">${c.raw_content}</textarea>
-                                        <div class="mt-2 flex gap-2 justify-start">
-                                            <button type="submit" class="bg-sky-600 text-white px-3 py-1 rounded text-sm hover:bg-sky-700">Save</button>
-                                            <button type="button" onclick="toggleEdit(${c.id})" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Cancel</button>
-                                        </div>
-                                    </form>
-
-                                    <div class="text-right mt-3 text-sm">
-                                        <button onclick="toggleEdit(${c.id})" class="text-orange-500 hover:underline mr-3 bg-transparent border-none cursor-pointer">Edit</button>
-                                        
-                                        <form method="POST" action="${c.delete_url}" class="inline">
-                                            <input type="hidden" name="_token" value="${csrfToken}">
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            `;
-                            commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
+                            commentsContainer.insertAdjacentHTML('beforeend', data.html);
+                            
                             if(countSpan) countSpan.innerText = data.count;
                             form.reset();
                         }

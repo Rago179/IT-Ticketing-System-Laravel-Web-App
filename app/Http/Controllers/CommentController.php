@@ -22,28 +22,21 @@ class CommentController extends Controller
         ]);
 
         $comment = Comment::create([
-            'post_id' => $request->post_id, 
-            'user_id' => Auth::id(),
-            'content' => $request->content,
-        ]);
+                    'post_id' => $request->post_id, 
+                    'user_id' => Auth::id(),
+                    'content' => $request->content,
+                ]);
 
         if ($request->wantsJson()) {
             $comment->load('user');
+           
+            $html = view('comments.item', compact('comment'))->render();
             
             return response()->json([
                 'success' => true,
                 'message' => 'Comment posted!',
                 'count' => Comment::where('post_id', $request->post_id)->count(),
-                'comment' => [
-                    'id' => $comment->id,
-                    'content' => nl2br(e($comment->content)),
-                    'raw_content' => $comment->content, 
-                    'user_name' => $comment->user->name,
-                    'user_url' => route('users.show', $comment->user),
-                    'created_at' => 'Just now',
-                    'delete_url' => route('comments.destroy', $comment),
-                    'update_url' => route('comments.update', $comment),
-                ],
+                'html' => $html, 
             ]);
         }
 
