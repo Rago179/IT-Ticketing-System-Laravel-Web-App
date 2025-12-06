@@ -137,69 +137,31 @@
         </div>
 
         {{-- COMMENTS SECTION --}}
-        <div class="border-t-2 border-slate-100 pt-8">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">Comments (<span id="comment-count">{{ $post->comments->count() }}</span>)</h2>
-
-            <div id="comments-container">
-            @forelse($post->comments as $comment)
-                <div class="bg-slate-50 p-5 rounded-lg mb-4" id="comment-{{ $comment->id }}">
-                    <div class="flex justify-between items-center mb-2 font-bold">
-                        <a href="{{ route('users.show', $comment->user) }}" class="text-slate-800 hover:underline">{{ $comment->user->name }}</a>
-                        <span class="text-sm font-normal text-slate-500">{{ $comment->created_at->diffForHumans() }}</span>
+        <div id="comments-container">
+                    @forelse($post->comments as $comment)
+                        @include('comments.item', ['comment' => $comment])
+                    @empty
+                        <p id="no-comments-msg" class="text-slate-500 italic">No comments yet.</p>
+                    @endforelse
                     </div>
-
-                    {{-- Display Mode --}}
-                    <div class="whitespace-pre-wrap text-slate-700" id="comment-body-{{ $comment->id }}">
-                        {!! nl2br(e($comment->content)) !!}
-                    </div>
-
-                    {{-- Edit Mode --}}
-                    @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                        <form action="{{ route('comments.update', $comment->id) }}" method="POST" 
-                            id="edit-form-{{ $comment->id }}" class="hidden mt-3">
+                    <div class="mt-10">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Leave a Comment</h3>
+                        <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
                             @csrf
-                            @method('PUT')
-                            <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[80px]">{{ $comment->content }}</textarea>
-                            <div class="mt-2 flex gap-2">
-                                <button type="submit" class="bg-sky-600 text-white px-3 py-1 rounded text-sm hover:bg-sky-700">Save</button>
-                                <button type="button" onclick="toggleEdit({{ $comment->id }})" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Cancel</button>
-                            </div>
-                        </form>
-
-                        <div class="text-right mt-3 text-sm">
-                            <button onclick="toggleEdit({{ $comment->id }})" class="text-orange-500 hover:underline mr-3 bg-transparent border-none cursor-pointer">Edit</button>
+                            <input type="hidden" name="post_id" value="{{ $post->id }}">
+                            <textarea id="comment-content" name="content" required placeholder="Write something..."
+                                    class="w-full p-4 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-3"></textarea>
                             
-                            <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">Delete</button>
-                            </form>
-                        </div>
-                    @endif
+                            <div id="comment-error" class="hidden text-red-600 text-sm mb-3 font-bold"></div>
+                            
+                            <button type="submit" id="submit-btn" class="bg-sky-600 text-white px-6 py-3 rounded-md font-bold hover:bg-sky-700 transition-colors shadow-sm">
+                                Post Comment
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            @empty
-                <p id="no-comments-msg" class="text-slate-500 italic">No comments yet.</p>
-            @endforelse
-            </div>
 
-            <div class="mt-10">
-                <h3 class="text-xl font-bold text-slate-800 mb-4">Leave a Comment</h3>
-                <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
-                    @csrf
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
-                    <textarea id="comment-content" name="content" required placeholder="Write something..."
-                              class="w-full p-4 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-3"></textarea>
-                    
-                    <div id="comment-error" class="hidden text-red-600 text-sm mb-3 font-bold"></div>
-                    
-                    <button type="submit" id="submit-btn" class="bg-sky-600 text-white px-6 py-3 rounded-md font-bold hover:bg-sky-700 transition-colors shadow-sm">
-                        Post Comment
-                    </button>
-                </form>
-            </div>
-        </div>
-
-    </div>
+            </div>`
 
     {{-- AJAX Script --}}
     <script>
@@ -253,22 +215,22 @@
                             if(noCommentsMsg) noCommentsMsg.remove();
 
                             // Tailwind-styled new comment
-                            const commentHtml = `
-                                <div class="bg-green-50 p-5 rounded-r-lg mb-4 border-l-4 border-green-500" id="comment-${c.id}">
+ const commentHtml = `
+                                <div class="bg-slate-50 p-5 rounded-lg mb-4 text-left block w-full" id="comment-${c.id}">
                                     <div class="flex justify-between items-center mb-2 font-bold">
-                                        <span><a href="${c.user_url}" class="text-slate-800 hover:underline">${c.user_name}</a></span>
+                                        <a href="${c.user_url}" class="text-slate-800 hover:underline">${c.user_name}</a>
                                         <span class="text-sm font-normal text-slate-500">Just now</span>
                                     </div>
 
-                                    <div class="whitespace-pre-wrap text-slate-700" id="comment-body-${c.id}">
+                                    <div class="whitespace-pre-wrap text-slate-700 text-left" id="comment-body-${c.id}">
                                         ${c.content}
                                     </div>
 
-                                    <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" class="hidden mt-3">
+                                    <form action="${c.update_url}" method="POST" id="edit-form-${c.id}" class="hidden mt-3 text-left">
                                         <input type="hidden" name="_token" value="${csrfToken}">
                                         <input type="hidden" name="_method" value="PUT">
                                         <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[80px]">${c.raw_content}</textarea>
-                                        <div class="mt-2 flex gap-2">
+                                        <div class="mt-2 flex gap-2 justify-start">
                                             <button type="submit" class="bg-sky-600 text-white px-3 py-1 rounded text-sm hover:bg-sky-700">Save</button>
                                             <button type="button" onclick="toggleEdit(${c.id})" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Cancel</button>
                                         </div>
@@ -285,7 +247,6 @@
                                     </div>
                                 </div>
                             `;
-
                             commentsContainer.insertAdjacentHTML('beforeend', commentHtml);
                             if(countSpan) countSpan.innerText = data.count;
                             form.reset();

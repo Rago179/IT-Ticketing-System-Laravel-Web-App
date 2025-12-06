@@ -67,13 +67,17 @@ class CommentController extends Controller
         ]);
 
         if ($request->wantsJson()) {
-             return response()->json([
-                 'success' => true,
-                 'content' => nl2br(e($comment->content)),
-                 'message' => 'Comment updated'
-             ]);
-        }
+            $comment->load('user');
 
+            $html = view('comments.item', compact('comment'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment posted!',
+                'count' => Comment::where('post_id', $request->post_id)->count(),
+                'html' => $html, 
+            ]);
+        }
         return back()->with('success', 'Comment updated successfully.');
     }
 
