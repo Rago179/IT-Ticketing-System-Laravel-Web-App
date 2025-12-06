@@ -57,14 +57,18 @@
                                     <form action="{{ route('users.updateRole', $user) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
-                                        <select name="role" onchange="this.form.submit()" class="p-1.5 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer text-slate-700">
+                                        <select name="role" 
+                                            onchange="this.form.submit()" 
+                                            class="py-1.5 pl-3 pr-8 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer text-slate-700 shadow-sm leading-tight">
                                             <option value="user" {{ $user->role === 'user' ? 'selected' : '' }}>User</option>
                                             <option value="it" {{ $user->role === 'it' ? 'selected' : '' }}>IT</option>
                                             <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                                         </select>
                                     </form>
                                 @else
-                                    <span class="px-2 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">Admin (You)</span>
+                                    <span class="px-4 py-1.5 inline-block whitespace-nowrap rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">
+                                        Admin (You)
+                                    </span>
                                 @endif
                             </td>
                             <td class="p-3">
