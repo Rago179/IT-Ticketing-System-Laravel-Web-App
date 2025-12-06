@@ -32,7 +32,26 @@
             <div>
                 <h1 class="text-3xl font-bold text-slate-800 m-0">Dashboard</h1>
             </div>
+            
             <div class="flex items-center gap-5 text-sm text-slate-600">
+                
+                {{-- NEW: BELL ICON FOR INBOX --}}
+                <a href="{{ route('inbox.index') }}" class="relative text-slate-400 hover:text-sky-600 transition-colors" title="Inbox">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                    </svg>
+                    
+                    {{-- Red Dot if Unread Notifications exist --}}
+                    @if(auth()->user()->unreadNotifications->count() > 0)
+                        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                    @endif
+                </a>
+                
+                <span class="text-slate-300">|</span>
+
                 <span>
                     Hi, <a href="{{ route('users.show', Auth::user()) }}" class="font-bold text-slate-800 no-underline hover:text-sky-600 hover:underline">{{ Auth::user()->name }}</a>
                 </span>

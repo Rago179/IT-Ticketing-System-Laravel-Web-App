@@ -2,37 +2,33 @@
 
 namespace App\Notifications;
 
+use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\Comment;
-use App\Models\User;
 
-class NewCommentNotification extends Notification
+class NewComment extends Notification
 {
     use Queueable;
 
     public $comment;
-    public $commenter;
 
-    public function __construct(Comment $comment, User $commenter)
+    public function __construct(Comment $comment)
     {
         $this->comment = $comment;
-        $this->commenter = $commenter;
     }
 
-    public function via($notifiable)
+    public function via(object $notifiable): array
     {
-        return ['database']; // Store in the database
+        return ['database']; 
     }
 
-    public function toArray($notifiable)
+    public function toArray(object $notifiable): array
     {
         return [
-            'post_id' => $this->comment->post_id,
             'comment_id' => $this->comment->id,
-            'commenter_name' => $this->commenter->name,
-            'comment_content' => \Illuminate\Support\Str::limit($this->comment->content, 50),
-            'message' => $this->commenter->name . ' commented on your post.',
+            'user_name' => $this->comment->user->name,
+            'post_title' => $this->comment->post->title,
+            'post_id' => $this->comment->post_id,
         ];
     }
 }

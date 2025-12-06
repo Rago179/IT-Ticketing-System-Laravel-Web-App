@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
+use App\Http\Controllers\InboxController;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -79,9 +80,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/admin/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
 
     // Notifications Routes
-    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::get('/inbox', [InboxController::class, 'index'])->name('inbox.index');
+    Route::patch('/inbox/{id}/read', [InboxController::class, 'markAsRead'])->name('inbox.read');
+    Route::patch('/inbox/read-all', [InboxController::class, 'markAllAsRead'])->name('inbox.markAll');
 });
 
 Route::post('logout', function (Request $request) {

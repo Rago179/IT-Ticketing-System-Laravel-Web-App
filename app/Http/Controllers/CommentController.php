@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Post; 
+use App\Notifications\NewCommentNotification;
 
 class CommentController extends Controller
 {
@@ -26,6 +28,11 @@ class CommentController extends Controller
                     'user_id' => Auth::id(),
                     'content' => $request->content,
                 ]);
+        $post = Post::find($request->post_id);
+        // Notify the post owner if it's not their own comment
+        if ($post->user_id !== Auth::id()) {
+            $post->user->notify(new NewComment($comment));
+        }
 
         if ($request->wantsJson()) {
             $comment->load('user');
