@@ -9,7 +9,7 @@ use App\Notifications\NewCommentNotification;
 
 class CommentController extends Controller
 {
-    public function store(Request $request)
+public function store(Request $request)
     {
         if (Auth::user()->is_blocked) {
             if ($request->wantsJson()) {
@@ -24,14 +24,19 @@ class CommentController extends Controller
         ]);
 
         $comment = Comment::create([
-                    'post_id' => $request->post_id, 
-                    'user_id' => Auth::id(),
-                    'content' => $request->content,
-                ]);
+            'post_id' => $request->post_id, 
+            'user_id' => Auth::id(),
+            'content' => $request->content,
+        ]);
+
         $post = Post::find($request->post_id);
-        // Notify the post owner if it's not their own comment
+
         if ($post->user_id !== Auth::id()) {
-            $post->user->notify(new NewCommentNotification($comment));
+            try {
+                $post->user->notify(new NewCommentNotification($comment));
+            } catch (\Exception $e) {
+                Log::error("Notification failed: " . $e->getMessage());
+            }
         }
 
         if ($request->wantsJson()) {
