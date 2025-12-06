@@ -21,14 +21,14 @@ new class extends Component
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    {{-- FIXED: Changed route('dashboard') to route('home') --}}
+                    {{-- Logo --}}
                     <a href="{{ route('home') }}" wire:navigate>
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    {{-- FIXED: Changed route('dashboard') to route('home') --}}
+                    {{-- Dashboard Link --}}
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -36,6 +36,22 @@ new class extends Component
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                
+                {{-- START: Bell Icon (This was missing) --}}
+                <a href="{{ route('notifications.index') }}" class="relative text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    
+                    {{-- Notification Badge --}}
+                    @if(auth()->user()->unreadNotifications->count() > 0)
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex items-center justify-center">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                    @endif
+                </a>
+                {{-- END: Bell Icon --}}
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
@@ -76,9 +92,16 @@ new class extends Component
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            {{-- FIXED: Changed route('dashboard') to route('home') --}}
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')" wire:navigate>
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            
+            {{-- OPTIONAL: Add Inbox to mobile menu as well --}}
+            <x-responsive-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')" wire:navigate>
+                {{ __('Inbox') }} 
+                @if(auth()->user()->unreadNotifications->count() > 0)
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ auth()->user()->unreadNotifications->count() }}</span>
+                @endif
             </x-responsive-nav-link>
         </div>
 

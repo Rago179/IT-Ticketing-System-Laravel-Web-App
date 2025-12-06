@@ -77,6 +77,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/admin/users', [UserController::class, 'index'])->name('users.index');
     Route::patch('/admin/users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
+
+    // Notifications Routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');
 });
 
 Route::post('logout', function (Request $request) {
