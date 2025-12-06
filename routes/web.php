@@ -81,6 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Notifications Routes
     Route::get('/inbox', [InboxController::class, 'index'])->name('inbox.index');
+    Route::get('/inbox/{id}/view', [InboxController::class, 'view'])->name('inbox.view'); 
     Route::patch('/inbox/{id}/read', [InboxController::class, 'markAsRead'])->name('inbox.read');
     Route::patch('/inbox/read-all', [InboxController::class, 'markAllAsRead'])->name('inbox.markAll');
 });

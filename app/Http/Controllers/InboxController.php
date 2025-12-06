@@ -10,8 +10,15 @@ class InboxController extends Controller
     public function index()
     {
         $notifications = Auth::user()->notifications()->paginate(10);
-        
         return view('inbox.index', compact('notifications'));
+    }
+
+    public function view($id)
+    {
+        $notification = Auth::user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        return redirect()->route('posts.show', $notification->data['post_id']);
     }
 
     public function markAsRead($id)

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\AssignedTicketNotification;
 
 class PostController extends Controller
 {
@@ -21,7 +22,6 @@ class PostController extends Controller
                             ->orderBy('name')
                             ->get();
 
-        // Standard posts (excluding pinned ones if you prefer, or keep all)
         $query = Post::with(['user', 'categories'])->latest();
         
         if ($request->has('category')) {
@@ -223,7 +223,6 @@ class PostController extends Controller
 
         $posts = $query->paginate(10)->withQueryString();
 
-        // [2] Fetch IT Staff for the dropdown
         $itStaff = User::whereIn('role', ['it', 'admin'])->orderBy('name')->get();
 
         return view('it-dashboard', compact('posts', 'itStaff'));
@@ -254,7 +253,11 @@ class PostController extends Controller
         }
         
         $post->save();
-
+        $assignedUser = User::find($request->user_id);
+        
+        if ($assignedUser && $assignedUser->id !== Auth::id()) {
+            $assignedUser->notify(new AssignedTicketNotification($post, Auth::user()->name));
+        }
         return back()->with('success', $message);
     }
 }

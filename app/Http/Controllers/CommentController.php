@@ -31,7 +31,7 @@ class CommentController extends Controller
         $post = Post::find($request->post_id);
         // Notify the post owner if it's not their own comment
         if ($post->user_id !== Auth::id()) {
-            $post->user->notify(new NewComment($comment));
+            $post->user->notify(new NewCommentNotification($comment));
         }
 
         if ($request->wantsJson()) {
