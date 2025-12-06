@@ -113,9 +113,33 @@
         @endif
         {{-- END: Admin/IT Controls --}}
 
-        <div class="text-sm text-slate-500 mb-6 pb-3 border-b border-gray-100">
-            Priority: <strong class="text-slate-800">{{ $post->priority }}/4</strong> 
-            | Posted by <a href="{{ route('users.show', $post->user) }}" class="font-bold text-sky-600 hover:underline">{{ $post->user->name }}</a> on {{ $post->created_at->format('M d, Y') }}
+        {{-- INFO BAR WITH STATUS --}}
+        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-6 pb-3 border-b border-gray-100">
+            @php
+                $statusStyles = [
+                    'open' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    'in_progress' => 'bg-sky-100 text-sky-800 border-sky-200',
+                    'resolved' => 'bg-slate-100 text-slate-600 border-slate-200',
+                ];
+                $statusColor = $statusStyles[$post->status] ?? 'bg-gray-100 text-gray-800';
+            @endphp
+            
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border {{ $statusColor }}">
+                {{ str_replace('_', ' ', $post->status) }}
+            </span>
+
+            <span class="text-slate-300">|</span>
+
+            <span>
+                Priority: <strong class="text-slate-800">{{ $post->priority }}/4</strong>
+            </span>
+            
+            <span class="text-slate-300">|</span>
+            
+            <span>
+                Posted by <a href="{{ route('users.show', $post->user) }}" class="font-bold text-sky-600 hover:underline">{{ $post->user->name }}</a> 
+                on {{ $post->created_at->format('M d, Y') }}
+            </span>
         </div>
         
         <div class="flex flex-wrap gap-2 mb-6">
@@ -138,30 +162,29 @@
 
         {{-- COMMENTS SECTION --}}
         <div id="comments-container">
-                    @forelse($post->comments as $comment)
-                        @include('comments.item', ['comment' => $comment])
-                    @empty
-                        <p id="no-comments-msg" class="text-slate-500 italic">No comments yet.</p>
-                    @endforelse
-                    </div>
-                    <div class="mt-10">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">Leave a Comment</h3>
-                        <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
-                            @csrf
-                            <input type="hidden" name="post_id" value="{{ $post->id }}">
-                            <textarea id="comment-content" name="content" required placeholder="Write something..."
-                                    class="w-full p-4 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-3"></textarea>
-                            
-                            <div id="comment-error" class="hidden text-red-600 text-sm mb-3 font-bold"></div>
-                            
-                            <button type="submit" id="submit-btn" class="bg-sky-600 text-white px-6 py-3 rounded-md font-bold hover:bg-sky-700 transition-colors shadow-sm">
-                                Post Comment
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            @forelse($post->comments as $comment)
+                @include('comments.item', ['comment' => $comment])
+            @empty
+                <p id="no-comments-msg" class="text-slate-500 italic">No comments yet.</p>
+            @endforelse
+        </div>
 
-            </div>`
+        <div class="mt-10">
+            <h3 class="text-xl font-bold text-slate-800 mb-4">Leave a Comment</h3>
+            <form id="comment-form" method="POST" action="{{ route('comments.store') }}">
+                @csrf
+                <input type="hidden" name="post_id" value="{{ $post->id }}">
+                <textarea id="comment-content" name="content" required placeholder="Write something..."
+                        class="w-full p-4 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 min-h-[100px] mb-3"></textarea>
+                
+                <div id="comment-error" class="hidden text-red-600 text-sm mb-3 font-bold"></div>
+                
+                <button type="submit" id="submit-btn" class="bg-sky-600 text-white px-6 py-3 rounded-md font-bold hover:bg-sky-700 transition-colors shadow-sm">
+                    Post Comment
+                </button>
+            </form>
+        </div>
+    </div>
 
     {{-- AJAX Script --}}
     <script>
