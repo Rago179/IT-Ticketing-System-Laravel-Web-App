@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\LikeController;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -84,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inbox/{id}/view', [InboxController::class, 'view'])->name('inbox.view'); 
     Route::patch('/inbox/{id}/read', [InboxController::class, 'markAsRead'])->name('inbox.read');
     Route::patch('/inbox/read-all', [InboxController::class, 'markAllAsRead'])->name('inbox.markAll');
+
+    Route::post('/like', [LikeController::class, 'toggle'])->name('like.toggle');
 });
 
 Route::post('logout', function (Request $request) {

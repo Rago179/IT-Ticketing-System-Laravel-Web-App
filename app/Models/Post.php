@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
@@ -40,9 +41,19 @@ class Post extends Model
         return $this->belongsTo(User::class, 'assigned_to_user_id');
     }
 
-    // THIS IS THE NEW RELATIONSHIP
+  
     public function categories()
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+    
+    public function isLikedBy(User $user)
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
     }
 }
