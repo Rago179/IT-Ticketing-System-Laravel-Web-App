@@ -123,21 +123,21 @@ class PostController extends Controller
             abort(403, 'Unauthorized Access');
         }
 
-        $rules = [
+     
+        $request->validate([
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
-        ];
+        ]);
 
-        if ($isOwner || $isAdmin) {
-            $rules['title'] = 'required|string|max:255';
-            $rules['description'] = 'required|string';
-            $rules['priority'] = 'required|integer|between:1,4';
-            $rules['image'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240'; // 10MB
-        }
 
-        $request->validate($rules);
+        if ($request->has('title') && ($isOwner || $isAdmin)) {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'priority' => 'required|integer|between:1,4',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', 
+            ]);
 
-        if ($isOwner || $isAdmin) {
             $data = [
                 'title' => $request->title,
                 'description' => $request->description,
@@ -151,11 +151,8 @@ class PostController extends Controller
             $post->update($data);
         }
 
-        if ($request->has('categories')) {
-             $post->categories()->sync($request->categories);
-        } elseif ($isOwner || $isAdmin) {
-             $post->categories()->detach();
-        }
+
+        $post->categories()->sync($request->input('categories', []));
 
         return redirect()->route('posts.show', $post)->with('success', 'Post updated successfully.');
     }
@@ -171,7 +168,7 @@ class PostController extends Controller
         return back()->with('success', 'Post deleted.');
     }
 
-public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:open,in_progress,resolved'
