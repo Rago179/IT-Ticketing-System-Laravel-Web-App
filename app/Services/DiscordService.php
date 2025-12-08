@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services;
+namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
@@ -10,13 +10,11 @@ class DiscordService
 
     public function __construct()
     {
-        // Load the URL from the config file
         $this->webhookUrl = config('services.discord.url');
     }
 
     public function sendHighPriorityAlert($ticketTitle, $ticketDescription, $userName)
     {
-        // If no URL is set, do nothing (prevents crashes)
         if (!$this->webhookUrl) {
             return;
         }
@@ -27,8 +25,8 @@ class DiscordService
                 'embeds' => [
                     [
                         'title' => $ticketTitle,
-                        'description' => substr($ticketDescription, 0, 200), // Limit description length
-                        'color' => 15548997, // Red
+                        'description' => substr($ticketDescription, 0, 200), 
+                        'color' => 15548997,
                         'fields' => [
                             [
                                 'name' => 'Reported By', 
@@ -49,7 +47,6 @@ class DiscordService
                 ]
             ]);
         } catch (\Exception $e) {
-            // Silently ignore errors so the user can still post their ticket
         }
     }
 }

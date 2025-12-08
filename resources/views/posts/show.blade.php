@@ -68,11 +68,15 @@
                     @method('PATCH')
                     <label for="status" class="block font-bold text-slate-700 mb-2">Update Status:</label>
                     <div class="flex gap-3">
-                        <select name="status" id="status" class="p-2 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500">
+                        
+                        {{-- FIXED: Copied classes exactly from it-dashboard.blade.php --}}
+                        <select name="status" id="status" 
+                                class="appearance-none py-2 pl-3 pr-8 border border-gray-300 rounded text-sm focus:ring-sky-500 focus:border-sky-500 bg-white cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E')] bg-[length:1.25em_1.25em] bg-no-repeat bg-[right_0.5rem_center]">
                             <option value="open" {{ $post->status == 'open' ? 'selected' : '' }}>Open</option>
                             <option value="in_progress" {{ $post->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="resolved" {{ $post->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
                         </select>
+
                         <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors">Update Status</button>
                     </div>
                     @error('status') <div class="text-red-600 text-sm font-bold mt-2">{{ $message }}</div> @enderror
