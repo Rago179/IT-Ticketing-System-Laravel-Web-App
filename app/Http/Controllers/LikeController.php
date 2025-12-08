@@ -18,14 +18,13 @@ class LikeController extends Controller
 
         $user = Auth::user();
         
-        // Find the model based on type
+
         if ($request->type === 'post') {
             $model = Post::findOrFail($request->id);
         } else {
             $model = Comment::findOrFail($request->id);
         }
 
-        // Check if already liked
         $existingLike = $model->likes()->where('user_id', $user->id)->first();
 
         if ($existingLike) {
@@ -40,7 +39,6 @@ class LikeController extends Controller
             $message = 'Liked';
         }
 
-        // Return JSON for AJAX calls, or redirect back for standard requests
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,

@@ -35,29 +35,22 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        // 1. Authorization
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        // 2. Prevent deleting 'Other'
         if ($category->name === 'Other') {
             return back()->with('error', 'You cannot delete the default "Other" category.');
         }
 
-        // 3. Find or Create 'Other' to act as the safety net
         $otherCategory = Category::firstOrCreate(['name' => 'Other']);
 
-        // 4. Smart Move: Only move posts that would otherwise be orphaned
         $category->posts()->each(function($post) use ($otherCategory) {
-            // If this post has ONLY 1 category (which is the one we are deleting),
-            // then we must assign it to 'Other' so it doesn't become category-less.
             if ($post->categories()->count() === 1) {
                 $post->categories()->syncWithoutDetaching([$otherCategory->id]);
             }
         });
 
-        // 5. Delete
         // Database cascade will handle removing the relationships for posts 
         // that had multiple categories.
         $category->delete();

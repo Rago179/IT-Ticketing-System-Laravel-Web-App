@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\AssignedTicketNotification;
 use App\Notifications\TicketStatusChangedNotification;
+use App\Services\DiscordService;
 
 class PostController extends Controller
 {
@@ -46,7 +47,7 @@ class PostController extends Controller
         return view('posts.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, DiscordService $discord)
     {
         if (Auth::user()->is_blocked) {
             return redirect()->route('home')->with('error', 'Your account is restricted.');
@@ -82,6 +83,14 @@ class PostController extends Controller
             if ($otherCategory) {
                 $post->categories()->attach($otherCategory->id);
             }
+        }
+
+        if ((int)$request->priority === 4) {
+            $discord->sendHighPriorityAlert(
+                $post->title, 
+                $post->description, 
+                Auth::user()->name
+            );
         }
 
         return redirect()->route('home')->with('success', 'Post published successfully!');

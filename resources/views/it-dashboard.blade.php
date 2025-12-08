@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Dashboard</title>
-    {{-- IMPORTANT: This loads Tailwind --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans p-5 bg-gray-50 text-slate-800">

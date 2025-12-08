@@ -21,7 +21,7 @@ class AssignedTicketNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database']; // Store in database
+        return ['database'];
     }
 
     public function toArray(object $notifiable): array
@@ -29,8 +29,8 @@ class AssignedTicketNotification extends Notification
         return [
             'post_id' => $this->post->id,
             'post_title' => $this->post->title,
-            'user_name' => $this->assigner_name, // The person who did the assigning (Admin/IT)
-            'type' => 'assigned', // Helper to distinguish in the view
+            'user_name' => $this->assigner_name, 
+            'type' => 'assigned', 
         ];
     }
 }

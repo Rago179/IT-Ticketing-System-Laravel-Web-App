@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $user->name }}'s Profile</title>
-    {{-- IMPORTANT: This loads Tailwind --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans p-5 bg-gray-50 text-slate-800">
@@ -158,7 +157,7 @@
             const form = document.getElementById('bio-edit-form');
             const btn = document.getElementById('editButton');
 
-            // Tailwind uses 'hidden' class which sets display: none
+           
             if (form.classList.contains('hidden')) {
                 form.classList.remove('hidden');
                 display.classList.add('hidden');

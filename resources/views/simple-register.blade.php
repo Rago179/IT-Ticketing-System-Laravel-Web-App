@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    {{-- IMPORTANT: This loads Tailwind --}}
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans flex justify-center items-center min-h-screen bg-gray-100 p-5">
