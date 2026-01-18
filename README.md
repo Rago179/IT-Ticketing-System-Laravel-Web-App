@@ -1,3 +1,41 @@
+Project Title: IT Helpdesk Support System
+Project Overview: Developed a robust, role-based IT ticketing system using the Laravel 12 framework. This application streamlines internal support requests by allowing users to report issues and IT staff to track, prioritize, and resolve them efficiently. It features real-time notifications, a dedicated IT dashboard, and external service integrations to ensure critical issues are addressed immediately.
+
+🚀 Key Features & Achievements:
+
+Role-Based Access Control (RBAC): Implemented secure authorization policies distinguishing between standard Users, IT Staff, and Administrators to control access to sensitive actions like assigning tickets or modifying pinned posts.
+
+Advanced Ticketing Workflow: Built a complete lifecycle management system where tickets transition through statuses (Open, In Progress, Resolved) with mandatory validation logic (e.g., resolving a ticket requires a closing comment).
+
+Custom IT Dashboard: Designed a responsive, filterable dashboard using Blade and Tailwind CSS. Features include sorting by priority, filtering by "Assigned to Me," and quick-action status updates.
+
+External API Integration (Discord): Engineered a custom DiscordService to send real-time, high-priority alerts to a Discord channel via webhooks when critical (Priority 4) tickets are created.
+
+Automated Notifications: Leveraged Laravel's notification system to send database alerts when tickets are assigned or status changes occur, keeping all stakeholders in the loop.
+
+Media Management: Integrated file handling to allow users to attach screenshots/images to tickets for better context.
+
+🛠️ Tech Stack:
+
+Backend: PHP 8.2, Laravel 12
+
+Frontend: Livewire, Tailwind CSS, Blade Templates
+
+Database: MySQL (Eloquent ORM & Migrations)
+
+Integrations: Discord Webhook API
+
+💡 What I Learned:
+
+Service-Oriented Architecture: Gained experience extracting business logic into dedicated services (e.g., DiscordService), keeping controllers clean and maintainable.
+
+Complex Query Scopes: Mastered Eloquent relationships and query building to implement efficient filtering and sorting for the dashboard.
+
+Modern Frontend Practices: Learned to build reactive user interfaces with Livewire and style them rapidly using utility-first CSS (Tailwind).
+
+Database Design: Enhanced skills in schema design through database migrations to support features like ticket priorities and user assignments.
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
