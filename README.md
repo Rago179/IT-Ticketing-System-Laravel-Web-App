@@ -1,4 +1,5 @@
 Project Title: IT Helpdesk Support System
+DEMO Video: https://youtu.be/HklCdm8unyU
 Project Overview: Developed a robust, role-based IT ticketing system using the Laravel 12 framework. This application streamlines internal support requests by allowing users to report issues and IT staff to track, prioritize, and resolve them efficiently. It features real-time notifications, a dedicated IT dashboard, and external service integrations to ensure critical issues are addressed immediately.
 
 🚀 Key Features & Achievements:
